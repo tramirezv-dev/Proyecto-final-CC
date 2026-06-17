@@ -1,0 +1,713 @@
+% =============================================================================
+% PRESENTACIÓN BEAMER — PROYECTO 4: MUESTRA INTELIGENTE
+% Universidad Nacional de Colombia — Sede Manizales
+% Compilar con: pdflatex (en Overleaf seleccionar pdfLaTeX)
+% =============================================================================
+
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+% ── Tema y colores ─────────────────────────────────────────────────────────────
+\usetheme{metropolis}
+\usepackage{appendixnumberbeamer}
+
+% Paleta de colores UNAL
+\definecolor{unalverde}{HTML}{006847}
+\definecolor{unalamarillo}{HTML}{FDD000}
+\definecolor{accentazul}{HTML}{1F4E79}
+\definecolor{grisneutro}{HTML}{F5F5F5}
+\definecolor{textogris}{HTML}{444444}
+
+\setbeamercolor{frametitle}{bg=unalverde, fg=white}
+\setbeamercolor{title separator}{fg=unalamarillo}
+\setbeamercolor{progress bar}{fg=unalamarillo, bg=unalverde!30}
+\setbeamercolor{alerted text}{fg=unalamarillo}
+\setbeamercolor{block title}{bg=accentazul, fg=white}
+\setbeamercolor{block body}{bg=grisneutro}
+\setbeamercolor{normal text}{fg=textogris}
+
+% ── Paquetes ────────────────────────────────────────────────────────────────────
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{fontawesome5}
+\usepackage{tcolorbox}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+
+\usetikzlibrary{trees, positioning, arrows.meta, shapes.geometric, backgrounds}
+
+% ── Estilo de código Python ────────────────────────────────────────────────────
+\lstdefinestyle{python}{
+  language=Python,
+  basicstyle=\ttfamily\tiny,
+  keywordstyle=\color{accentazul}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{unalverde},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  framerule=0.4pt,
+  rulecolor=\color{unalverde!40},
+  backgroundcolor=\color{grisneutro},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=4pt,
+}
+
+% ── Metadatos ──────────────────────────────────────────────────────────────────
+\title{\textbf{Muestra Inteligente}}
+\subtitle{Una Encuesta Pequeña pero Equilibrada \\ \small Backtracking aplicado a Ciencia de Datos}
+\author{Sebastián Gutiérrez \and Mateo Bernal \and Thomas Ramírez}
+\institute{%
+  Universidad Nacional de Colombia --- Sede Manizales \\
+  Introducción a las Ciencias de la Computación \\
+  Prof.\ Carlos Manuel Orrego Franco
+}
+\date{17 de junio de 2026}
+
+% ── Encabezado de sección ─────────────────────────────────────────────────────
+\AtBeginSection[]{
+  \begin{frame}
+    \vfill
+    \centering
+    \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+      \usebeamerfont{title}\insertsectionhead
+    \end{beamercolorbox}
+    \vfill
+  \end{frame}
+}
+
+% =============================================================================
+\begin{document}
+% =============================================================================
+
+% ── Portada ────────────────────────────────────────────────────────────────────
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ── Tabla de contenidos ────────────────────────────────────────────────────────
+\begin{frame}{Contenido}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+
+% =============================================================================
+\section{Introducción y Problema}
+% =============================================================================
+
+\begin{frame}{El contexto}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{Situación real:}
+      \begin{itemize}
+        \item Bienestar Universitario quiere estudiar \textbf{hábitos de estudio} de sus estudiantes.
+        \item No puede entrevistar a \emph{todos}: tiempo y recursos limitados.
+        \item Necesita una \textbf{muestra pequeña} que no quede sesgada hacia un solo programa, semestre o ciudad.
+      \end{itemize}
+
+      \vspace{0.4cm}
+      \begin{tcolorbox}[colback=unalverde!10, colframe=unalverde, title=Pregunta central]
+        ¿Puede una computadora construir automáticamente una muestra representativa?
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \textbf{El problema en cifras:}
+      \begin{center}
+        \begin{tabular}{lc}
+          \toprule
+          \textbf{Campo} & \textbf{Valores} \\
+          \midrule
+          Programa  & 4 opciones \\
+          Semestre  & 5 niveles  \\
+          Ciudad    & 3 ciudades \\
+          Jornada   & 2 tipos    \\
+          \midrule
+          \textbf{Pool total} & \textbf{20 est.} \\
+          \textbf{Muestra} & \textbf{6 est.} \\
+          \bottomrule
+        \end{tabular}
+      \end{center}
+
+      \vspace{0.3cm}
+      \small Sin restricciones: $\binom{20}{6} = 38{,}760$ combinaciones posibles.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{¿Por qué es difícil elegir manualmente?}
+  \begin{alertblock}{El problema crece rápido}
+    Cada regla nueva que agrego puede entrar en conflicto con las anteriores.
+  \end{alertblock}
+
+  \vspace{0.3cm}
+  Ejemplo: intento elegir 6 estudiantes a mano con estas reglas:
+  \begin{enumerate}
+    \item Al menos 2 de Computación
+    \item Al menos 1 de Matemáticas
+    \item Máximo 3 de la misma ciudad
+    \item Al menos 2 de primer semestre
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textbf{Tensiones que aparecen:}
+  \begin{itemize}
+    \item Se excede el cupo de Manizales antes de cubrir semestre 1.
+    \item Quedan pocos estudiantes de Matemáticas disponibles.
+    \item ¿Cómo saber si las cuotas son \emph{imposibles} de satisfacer?
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Solución:} modelar el problema como una búsqueda sistemática con \textbf{backtracking}.
+\end{frame}
+
+
+% =============================================================================
+\section{Objetivos}
+% =============================================================================
+
+\begin{frame}{Objetivos}
+  \begin{block}{Objetivo general}
+    Demostrar cómo el backtracking puede construir una muestra representativa
+    respetando condiciones claras, en un dataset sintético pequeño.
+  \end{block}
+
+  \vspace{0.4cm}
+  \textbf{Objetivos específicos:}
+  \begin{enumerate}
+    \item Modelar el problema de selección de muestra con la estructura formal de backtracking.
+    \item Implementar un algoritmo funcional en Python con poda eficiente.
+    \item Probar el algoritmo con 3 conjuntos de cuotas distintos, incluyendo un caso sin solución.
+    \item Comparar visualmente la distribución del pool original con la muestra seleccionada.
+    \item Encontrar la muestra más equilibrada entre todas las válidas (extensión opcional).
+  \end{enumerate}
+\end{frame}
+
+
+% =============================================================================
+\section{Metodología y Modelamiento}
+% =============================================================================
+
+\begin{frame}{Estructura de backtracking}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{tabular}{lp{5cm}}
+        \toprule
+        \textbf{Componente} & \textbf{En este proyecto} \\
+        \midrule
+        Solución parcial & Lista de estudiantes ya seleccionados \\[4pt]
+        Candidatos & Estudiantes del pool aún no seleccionados \\[4pt]
+        Restricciones & Cuotas mín/máx, tamaño exacto \\[4pt]
+        Sol.\ completa & Muestra que cumple \emph{todos} los mínimos \\[4pt]
+        Retroceso & Al violar una cuota máxima \\[4pt]
+        Poda & Al detectar que un mínimo ya no es alcanzable \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{tcolorbox}[colback=accentazul!8, colframe=accentazul, title=Las 5 funciones base]
+        \tiny
+        \texttt{es\_solucion\_completa()} \\
+        \texttt{obtener\_candidatos()} \\
+        \texttt{es\_valido()} \\
+        \texttt{puede\_podar()} \\
+        \texttt{backtracking()} \\
+      \end{tcolorbox}
+
+      \vspace{0.3cm}
+      \textbf{Truco clave:} se usa un índice creciente para explorar candidatos, evitando generar la misma muestra en distinto orden.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Las restricciones implementadas}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{\texttt{es\_valido()} — Restricciones MAX}
+      \lstset{style=python}
+      \begin{lstlisting}
+def es_valido(muestra, candidato, cuotas):
+    max_c = cuotas.get("max_por_ciudad", inf)
+    ya = sum(1 for e in muestra
+             if e["ciudad"] == candidato["ciudad"])
+    return ya < max_c
+      \end{lstlisting}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{\texttt{puede\_podar()} — Poda anticipada}
+      \lstset{style=python}
+      \begin{lstlisting}
+def puede_podar(muestra, pool_restante, cuotas):
+    faltantes = cuotas["tamano"] - len(muestra)
+
+    # Poda global de ciudades
+    capacidad = sum(max(0, max_c - por_ciudad[c])
+                    for c in todas_ciudades)
+    if capacidad < faltantes:
+        return True  # imposible
+
+    efectivos = candidatos_validos(pool_restante,
+                                   muestra, cuotas)
+    # Poda por programa minimo
+    for prog, minimo in cuotas["min_programa"].items():
+        disp = sum(1 for e in efectivos
+                   if e["programa"] == prog)
+        if actuales + disp < minimo:
+            return True
+    return False
+      \end{lstlisting}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Árbol de búsqueda (ejemplo manual)}
+  \begin{center}
+    \small
+    \textbf{Pool mini (5 estudiantes), muestra de 3, mín 1 de Computación, máx 2 por ciudad}
+  \end{center}
+
+  \vspace{0.2cm}
+  \begin{tikzpicture}[
+    level distance=1.1cm,
+    sibling distance=2.8cm,
+    every node/.style={font=\tiny, draw, rounded corners, inner sep=2pt},
+    sol/.style={fill=unalverde!25, font=\tiny\bfseries},
+    poda/.style={fill=red!15, font=\tiny, draw=red!60},
+    edge from parent/.style={draw, -Stealth, thin},
+    scale=0.88, transform shape,
+  ]
+  \node [fill=gray!15] {$\emptyset$}
+    child { node {E1-Comp-Mza}
+      child { node {E1,E2-Mat-Per}
+        child { node [sol] {E1,E2,E3 \checkmark} }
+        child { node [sol] {E1,E2,E4 \checkmark} }
+        child { node [sol] {E1,E2,E5 \checkmark} }
+      }
+      child { node {E1,E3-Est-Arm}
+        child { node [sol] {E1,E3,E4 \checkmark} }
+        child { node [sol] {E1,E3,E5 \checkmark} }
+      }
+      child { node {E1,E4-Comp-Mza}
+        child { node [sol] {E1,E4,E5 \checkmark} }
+      }
+    }
+    child { node {E2-Mat-Per}
+      child { node {E2,E3-Est-Arm}
+        child { node [sol] {E2,E3,E4 \checkmark} }
+        child [poda] { node [poda] {E2,E3,E5 -- poda} }
+      }
+      child { node [poda] {E2,E4-Comp-Mza} edge from parent [draw=red!50] }
+    }
+    child [poda] { node [poda] {E3-Est-Arm (sin Comp)} edge from parent [draw=red!50] };
+  \end{tikzpicture}
+
+  \vspace{0.1cm}
+  \begin{center}
+    \small 25 llamadas recursivas · 6 ramas podadas · \textbf{9 soluciones} encontradas
+  \end{center}
+\end{frame}
+
+
+% =============================================================================
+\section{Dataset y Diseño de la Encuesta}
+% =============================================================================
+
+\begin{frame}{Dataset sintético (20 estudiantes)}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{center}
+        \small
+        \begin{tabular}{clcccc}
+          \toprule
+          \textbf{id} & \textbf{Programa} & \textbf{Sem.} & \textbf{Ciudad} & \textbf{Jornada} \\
+          \midrule
+          1  & Computación  & 1 & Manizales & Diurna   \\
+          2  & Matemáticas  & 1 & Pereira   & Diurna   \\
+          3  & Estadística  & 2 & Armenia   & Nocturna \\
+          4  & Computación  & 2 & Manizales & Diurna   \\
+          5  & Matemáticas  & 3 & Pereira   & Nocturna \\
+          6  & Estadística  & 1 & Armenia   & Diurna   \\
+          7  & Física       & 3 & Manizales & Diurna   \\
+          8  & Computación  & 1 & Pereira   & Nocturna \\
+          \vdots & \vdots  & \vdots & \vdots & \vdots \\
+          20 & Física       & 5 & Armenia   & Nocturna \\
+          \bottomrule
+        \end{tabular}
+      \end{center}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \textbf{Distribución del pool:}
+
+      \begin{tikzpicture}
+        \begin{axis}[
+          ybar, bar width=10pt,
+          width=6cm, height=4cm,
+          xtick=data,
+          xticklabels={Comp., Mat., Est., Fís.},
+          xticklabel style={font=\tiny},
+          ymin=0, ymax=8,
+          ytick={0,2,4,6,8},
+          yticklabel style={font=\tiny},
+          ylabel={\tiny Estudiantes},
+          ylabel style={font=\tiny},
+          title={\small Por programa},
+          title style={font=\small},
+          nodes near coords,
+          every node near coord/.style={font=\tiny},
+          axis lines=left,
+          tick style={draw=none},
+          ymajorgrids=true, grid style={dotted},
+          fill=unalverde!70,
+          draw=unalverde,
+        ]
+          \addplot coordinates {(1,6)(2,5)(3,5)(4,4)};
+        \end{axis}
+      \end{tikzpicture}
+
+      \vspace{0.15cm}
+      \small
+      \begin{tabular}{ll}
+        \textbf{Ciudad} & \textbf{Cant.} \\
+        \hline
+        Manizales & 7 \\
+        Armenia   & 7 \\
+        Pereira   & 6 \\
+      \end{tabular}
+      \hspace{0.3cm}
+      \begin{tabular}{ll}
+        \textbf{Jornada} & \textbf{Cant.} \\
+        \hline
+        Diurna   & 12 \\
+        Nocturna &  8 \\
+      \end{tabular}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Los tres conjuntos de cuotas}
+  \begin{columns}[T]
+    \begin{column}{0.32\textwidth}
+      \begin{tcolorbox}[colback=unalverde!10, colframe=unalverde, title=Conjunto 1 — Base]
+        \small
+        Tamaño: \textbf{6} \\[3pt]
+        $\geq 2$ Computación \\
+        $\geq 1$ Matemáticas \\
+        $\leq 3$ por ciudad \\
+        $\geq 2$ semestre 1 \\[3pt]
+        \textcolor{unalverde}{\faCheckCircle\ \textbf{Solución: Sí}}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{tcolorbox}[colback=accentazul!10, colframe=accentazul, title=Conjunto 2 — Diversidad]
+        \small
+        Tamaño: \textbf{6} \\[3pt]
+        $\geq 2$ Computación \\
+        $\geq 1$ Matemáticas \\
+        $\geq 1$ Estadística \\
+        $\leq 3$ por ciudad \\
+        $\geq 2$ Nocturna \\[3pt]
+        \textcolor{accentazul}{\faCheckCircle\ \textbf{Solución: Sí}}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{tcolorbox}[colback=red!10, colframe=red!60, title=Conjunto 3 — Sin solución]
+        \small
+        Tamaño: \textbf{7} \\[3pt]
+        $\geq 2$ Computación \\
+        $\geq 1$ Matemáticas \\
+        $\leq 2$ por ciudad \\
+        $\geq 2$ semestre 1 \\[3pt]
+        \textcolor{red!70}{\faTimesCircle\ \textbf{Imposible:}} \\
+        \tiny $3 \times 2 = 6 < 7$
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.4cm}
+  \begin{center}
+    \small
+    El Conjunto 3 demuestra que el algoritmo detecta la imposibilidad \textbf{antes} de explorar cualquier rama, gracias a la poda global de capacidad de ciudades.
+  \end{center}
+\end{frame}
+
+
+% =============================================================================
+\section{Implementación}
+% =============================================================================
+
+\begin{frame}[fragile]{Algoritmo de backtracking}
+  \lstset{style=python}
+  \begin{lstlisting}
+def backtracking(pool, muestra, cuotas, soluciones, contadores, inicio=0, limite=1):
+    contadores["llamadas"] += 1
+
+    if es_solucion_completa(muestra, cuotas):  # Caso base exitoso
+        soluciones.append(list(muestra))
+        return
+
+    if limite is not None and len(soluciones) >= limite:  # Limite alcanzado
+        return
+
+    pool_restante = obtener_candidatos(pool, inicio)
+
+    if puede_podar(muestra, pool_restante, cuotas):  # Poda global
+        contadores["podas"] += 1
+        return
+
+    for i, candidato in enumerate(pool_restante):
+        if es_valido(muestra, candidato, cuotas):
+            muestra.append(candidato)              # ELEGIR
+            backtracking(pool, muestra, cuotas, soluciones,
+                         contadores, inicio + i + 1, limite)
+            muestra.pop()                          # RETROCEDER (backtrack)
+        else:
+            contadores["podas"] += 1
+  \end{lstlisting}
+\end{frame}
+
+
+% =============================================================================
+\section{Resultados}
+% =============================================================================
+
+\begin{frame}{Muestras encontradas}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Conjunto 1 — Muestra válida encontrada:}
+      \vspace{0.2cm}
+      \begin{center}
+        \small
+        \begin{tabular}{clcc}
+          \toprule
+          \textbf{id} & \textbf{Programa} & \textbf{Ciudad} & \textbf{Sem.} \\
+          \midrule
+          \rowcolor{unalverde!15} 1 & Computación & Manizales & 1 \\
+          2 & Matemáticas & Pereira   & 1 \\
+          3 & Estadística & Armenia   & 2 \\
+          \rowcolor{unalverde!15} 4 & Computación & Manizales & 2 \\
+          5 & Matemáticas & Pereira   & 3 \\
+          6 & Estadística & Armenia   & 1 \\
+          \bottomrule
+        \end{tabular}
+      \end{center}
+      \vspace{0.2cm}
+      \small
+      \checkmark\ 2 Computación (IDs 1,4) \\
+      \checkmark\ 1 Matemáticas mínimo \\
+      \checkmark\ Máx 2 por ciudad \\
+      \checkmark\ 3 de semestre 1 (IDs 1,2,6)
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Tabla resumen de las 3 pruebas:}
+      \vspace{0.2cm}
+      \begin{center}
+        \small
+        \begin{tabular}{lccc}
+          \toprule
+          \textbf{Conj.} & \textbf{Llamadas} & \textbf{Podas} & \textbf{Sol.} \\
+          \midrule
+          C1 — Base       & 7     & 0      & Sí \\
+          C2 — Diversidad & 7     & 0      & Sí \\
+          C3 — Imposible  & \textbf{1} & \textbf{1} & No \\
+          \bottomrule
+        \end{tabular}
+      \end{center}
+
+      \vspace{0.3cm}
+      \begin{tcolorbox}[colback=unalamarillo!20, colframe=unalamarillo!80, title=\small Dato clave]
+        \small El Conjunto 3 se resuelve en \textbf{1 sola llamada} gracias a la poda global de capacidad de ciudades ($3 \times 2 = 6 < 7$).
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Extensión: la muestra más equilibrada}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{Búsqueda de todas las muestras válidas (C1):}
+      \begin{itemize}
+        \item El algoritmo encontró \textbf{10,734 muestras válidas}.
+        \item Para cada una se calcula un \textbf{puntaje de balance}:
+      \end{itemize}
+      \vspace{0.2cm}
+      \[
+        \text{balance} = 1 - \sum_{\text{prog}} \left|\frac{n_{\text{prog}}^{\text{muestra}}}{n_{\text{muestra}}} - \frac{n_{\text{prog}}^{\text{pool}}}{n_{\text{pool}}}\right|
+      \]
+      \vspace{0.1cm}
+      Cercano a 1.0 = distribución de la muestra muy parecida al pool.
+
+      \vspace{0.3cm}
+      \begin{tabular}{lc}
+        \toprule
+        Score promedio & 0.56 \\
+        Score mínimo   & $-$0.07 \\
+        \textbf{Score máximo (mejor)} & \textbf{0.77} \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \textbf{Mejor muestra (score = 0.77):}
+      \vspace{0.2cm}
+      \begin{center}
+        \small
+        \begin{tabular}{clc}
+          \toprule
+          \textbf{id} & \textbf{Prog.} & \textbf{Ciudad} \\
+          \midrule
+          1  & Comp.  & Manizales \\
+          2  & Mat.   & Pereira   \\
+          3  & Est.   & Armenia   \\
+          4  & Comp.  & Manizales \\
+          5  & Mat.   & Pereira   \\
+          7  & Fís.   & Manizales \\
+          \bottomrule
+        \end{tabular}
+      \end{center}
+      \vspace{0.2cm}
+      \small Incluye los \textbf{4 programas} con distribución similar al pool: Comp(2) Mat(2) Est(1) Fís(1).
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+% =============================================================================
+\section{Análisis y Conclusiones}
+% =============================================================================
+
+\begin{frame}{Análisis de eficiencia}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{¿Por qué el backtracking es eficiente aquí?}
+
+      \vspace{0.2cm}
+      \begin{enumerate}
+        \item \textbf{Índice creciente de candidatos}: evita generar permutaciones duplicadas. Solo se evalúan $\binom{20}{6} = 38{,}760$ ramas en el peor caso (vs.\ $20^6 = 64$ millones con repetición).
+        \vspace{0.2cm}
+        \item \textbf{Poda de capacidad global}: detecta la imposibilidad del C3 en la primera llamada, sin explorar ninguna rama.
+        \vspace{0.2cm}
+        \item \textbf{Poda de mínimos}: descarta ramas en cuanto detecta que un mínimo ya no puede cumplirse con los candidatos restantes.
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{tikzpicture}
+        \begin{axis}[
+          ybar, bar width=16pt,
+          width=6cm, height=5.5cm,
+          xtick={1,2,3},
+          xticklabels={C1 Base, C2 Diversidad, C3 Imposible},
+          xticklabel style={font=\tiny, rotate=20, anchor=east},
+          ymin=0, ymax=12,
+          ytick={0,2,4,6,8,10,12},
+          yticklabel style={font=\tiny},
+          ylabel={\tiny Cantidad},
+          ylabel style={font=\tiny},
+          title={\small Llamadas recursivas por conjunto},
+          title style={font=\small},
+          nodes near coords,
+          every node near coord/.style={font=\tiny},
+          axis lines=left,
+          tick style={draw=none},
+          ymajorgrids=true,
+          grid style={dotted},
+          legend style={font=\tiny, at={(0.5,-0.3)}, anchor=north},
+        ]
+          \addplot [fill=unalverde!70, draw=unalverde]
+            coordinates {(1,7)(2,7)(3,1)};
+          \addlegendentry{Llamadas recursivas}
+          \addplot [fill=unalamarillo!80, draw=unalamarillo!60]
+            coordinates {(1,0)(2,0)(3,1)};
+          \addlegendentry{Ramas podadas}
+        \end{axis}
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Conclusiones}
+  \begin{enumerate}
+    \setlength\itemsep{0.4cm}
+
+    \item \textbf{Backtracking = construcción inteligente de soluciones parciales.}
+    La muestra se construye paso a paso; cada restricción reduce el espacio de búsqueda antes de completar la exploración.
+
+    \item \textbf{La poda es el motor de eficiencia.}
+    La poda global de capacidad de ciudades detecta imposibilidades en la primera llamada, sin recorrer ninguna rama.
+
+    \item \textbf{Muestra válida $\neq$ Muestra óptima.}
+    El backtracking básico encuentra la primera solución válida. Evaluar todas las soluciones y elegir la de mayor balance requiere una extensión explícita.
+
+    \item \textbf{El algoritmo escala con claridad.}
+    Agregar una nueva restricción solo requiere modificar \texttt{es\_valido()} o \texttt{puede\_podar()}, sin reescribir la lógica central.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Referencias}
+  \begin{thebibliography}{9}
+    \bibitem{levitin}
+      Levitin, A. (2012). \textit{Introduction to the Design and Analysis of Algorithms} (3rd ed.). Pearson.
+
+    \bibitem{cormen}
+      Cormen, T., Leiserson, C., Rivest, R., \& Stein, C. (2022). \textit{Introduction to Algorithms} (4th ed.). MIT Press.
+
+    \bibitem{skiena}
+      Skiena, S. (2020). \textit{The Algorithm Design Manual} (3rd ed.). Springer.
+
+    \bibitem{thompson}
+      Thompson, S. K. (2012). \textit{Sampling} (3rd ed.). Wiley.
+
+    \bibitem{python}
+      Python Software Foundation. (2024). \textit{Python 3 Documentation}. \texttt{https://docs.python.org/3/}
+  \end{thebibliography}
+\end{frame}
+
+
+% =============================================================================
+% DIAPOSITIVA EXTRA — Preguntas de defensa
+% =============================================================================
+\appendix
+
+\begin{frame}{Preguntas de defensa preparadas}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Q: ¿Qué representa una rama del árbol de búsqueda?}
+
+      \small Una secuencia de decisiones parciales: cada nodo es una lista de estudiantes ya seleccionados. Una rama completa es una muestra de tamaño $k$.
+
+      \vspace{0.35cm}
+      \textbf{Q: ¿Cómo detectan que una cuota ya no puede cumplirse?}
+
+      \small La función \texttt{puede\_podar()} cuenta cuántos candidatos válidos quedan para cada programa. Si $\text{actuales} + \text{disponibles} < \text{mínimo}$, se poda.
+
+      \vspace{0.35cm}
+      \textbf{Q: ¿Qué diferencia hay entre muestra válida y óptima?}
+
+      \small Una muestra válida cumple todas las cuotas. Una óptima es la más equilibrada (máximo score de balance) entre todas las válidas.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Q: ¿Qué caso de prueba reveló un error?}
+
+      \small El Conjunto 3 con \texttt{max\_por\_ciudad=2} y \texttt{tamano=7} inicialmente tomaba 8,380 llamadas. La poda global de capacidad de ciudades lo resolvió en 1 llamada.
+
+      \vspace{0.35cm}
+      \textbf{Q: ¿Su algoritmo encuentra una solución o todas?}
+
+      \small El parámetro \texttt{limite} controla esto: \texttt{limite=1} da la primera solución (rápido), \texttt{limite=None} da todas las soluciones (más lento, 10,734 para C1).
+
+      \vspace{0.35cm}
+      \textbf{Q: ¿Qué cambiaría si el dataset tuviera 1000 estudiantes?}
+
+      \small La poda se vuelve más poderosa. La cantidad de ramas exploradas crece, pero la poda por mínimos las corta antes. Habría que ajustar el límite de soluciones.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\end{document}

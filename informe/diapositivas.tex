@@ -1,0 +1,467 @@
+% =============================================================================
+% DIAPOSITIVAS — PROYECTO 4: MUESTRA INTELIGENTE
+% Estilo: minimalista, juvenil, poco texto
+% Compilar en Overleaf con pdfLaTeX
+% =============================================================================
+
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+% ── Tema base ─────────────────────────────────────────────────────────────────
+\usetheme{metropolis}
+\usepackage{appendixnumberbeamer}
+
+% ── Paquetes ──────────────────────────────────────────────────────────────────
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usetikzlibrary{positioning}
+
+% ── Colores ───────────────────────────────────────────────────────────────────
+\definecolor{cdark}{HTML}{111111}
+\definecolor{cverde}{HTML}{006847}
+\definecolor{camarillo}{HTML}{FDD000}
+\definecolor{cgris}{HTML}{999999}
+\definecolor{ccard}{HTML}{1E1E1E}
+\definecolor{clight}{HTML}{F5F5F5}
+\definecolor{ccode}{HTML}{161616}
+
+% ── Colores del tema ──────────────────────────────────────────────────────────
+\setbeamercolor{normal text}{fg=white, bg=cdark}
+\setbeamercolor{frametitle}{bg=cdark, fg=white}
+\setbeamercolor{progress bar}{fg=camarillo, bg=cdark}
+\setbeamercolor{title separator}{fg=camarillo}
+\setbeamercolor{alerted text}{fg=camarillo}
+\setbeamercolor{block title}{bg=cverde, fg=white}
+\setbeamercolor{block body}{bg=ccard, fg=white}
+\setbeamercolor{background canvas}{bg=cdark}
+
+\metroset{block=fill, progressbar=foot, titleformat=smallcaps}
+
+% ── Sin logo ni pie redundante ────────────────────────────────────────────────
+\setbeamertemplate{frame numbering}[fraction]
+
+% ── tcolorbox ─────────────────────────────────────────────────────────────────
+\tcbuselibrary{skins}
+\newtcolorbox{tarjeta}{
+  colback=ccard, colframe=white!10!ccard,
+  arc=8pt, boxrule=0.5pt,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+}
+\newtcolorbox{tarjetaverde}{
+  colback=cverde!20!cdark, colframe=cverde,
+  arc=8pt, boxrule=0.8pt,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+}
+\newtcolorbox{formula}{
+  colback=ccode, colframe=camarillo,
+  arc=6pt, boxrule=0pt,
+  borderline west={3pt}{0pt}{camarillo},
+  left=10pt, right=10pt, top=6pt, bottom=6pt,
+}
+
+% ── Código Python ─────────────────────────────────────────────────────────────
+\lstdefinestyle{py}{
+  language=Python,
+  basicstyle=\ttfamily\fontsize{6.8}{9}\selectfont\color{white},
+  keywordstyle=\color{camarillo}\bfseries,
+  commentstyle=\color{cgris}\itshape,
+  stringstyle=\color{green!60!white},
+  backgroundcolor=\color{ccode},
+  frame=none,
+  showstringspaces=false,
+  breaklines=true,
+  tabsize=2,
+}
+
+% ── Metadatos ─────────────────────────────────────────────────────────────────
+\title{\textbf{Muestra Inteligente}}
+\subtitle{Backtracking aplicado a selección de muestras representativas}
+\author{Sebastián Gutiérrez \and Mateo Bernal \and Thomas Ramírez}
+\institute{Universidad Nacional de Colombia — Sede Manizales\\
+           Introducción a las Ciencias de la Computación\\
+           Prof.\ Carlos Manuel Orrego Franco}
+\date{17 de junio de 2026}
+
+% =============================================================================
+\begin{document}
+% =============================================================================
+
+% ── PORTADA ───────────────────────────────────────────────────────────────────
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+% ── 1. EL PROBLEMA ────────────────────────────────────────────────────────────
+{
+\setbeamercolor{background canvas}{bg=clight}
+\setbeamercolor{normal text}{fg=cdark}
+\setbeamercolor{frametitle}{bg=clight, fg=cdark}
+\begin{frame}{El problema}
+  \begin{center}
+    {\large ¿Cómo elegir \textcolor{cverde}{\textbf{6 estudiantes}} sin sesgar la muestra?}\\[0.5cm]
+    {\normalsize Bienestar Universitario necesita una muestra \textbf{pequeña y representativa}.}
+    \vspace{0.6cm}
+
+    \begin{columns}[c]
+      \begin{column}{0.3\textwidth}
+        \begin{center}
+          {\fontsize{36}{40}\selectfont\bfseries\color{cverde} 20}\\
+          {\small\color{cgris} estudiantes en el pool}
+        \end{center}
+      \end{column}
+      \begin{column}{0.3\textwidth}
+        \begin{center}
+          {\fontsize{36}{40}\selectfont\bfseries\color{cverde} 6}\\
+          {\small\color{cgris} a seleccionar}
+        \end{center}
+      \end{column}
+      \begin{column}{0.3\textwidth}
+        \begin{center}
+          {\fontsize{36}{40}\selectfont\bfseries\color{cverde} 38K}\\
+          {\small\color{cgris} combinaciones posibles}
+        \end{center}
+      \end{column}
+    \end{columns}
+  \end{center}
+\end{frame}
+}
+
+
+% ── 2. POR QUÉ BACKTRACKING ───────────────────────────────────────────────────
+\begin{frame}{Por qué \alert{backtracking}}
+  \vspace{0.3cm}
+  \begin{columns}[c]
+    \begin{column}{0.3\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\Large\faHammer\par}
+          \vspace{4pt}
+          {\small\bfseries Construye}\\[2pt]
+          {\footnotesize\color{cgris} la muestra paso a paso}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\Large\faCut\par}
+          \vspace{4pt}
+          {\small\bfseries Poda}\\[2pt]
+          {\footnotesize\color{cgris} ramas imposibles antes de explorarlas}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\Large\faUndo\par}
+          \vspace{4pt}
+          {\small\bfseries Retrocede}\\[2pt]
+          {\footnotesize\color{cgris} cuando viola una cuota}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+% ── 3. LOS 5 COMPONENTES ─────────────────────────────────────────────────────
+\begin{frame}{Los \alert{5 componentes}}
+  \vspace{0.2cm}
+  \begin{columns}[T]
+    \begin{column}{0.44\textwidth}
+      \begin{tarjeta}
+        \textcolor{camarillo}{\faCircle[regular]}\enspace
+        {\small\bfseries Solución parcial}\\
+        {\footnotesize\color{cgris} Lista de estudiantes ya elegidos}
+      \end{tarjeta}\vspace{4pt}
+      \begin{tarjeta}
+        \textcolor{camarillo}{\faCircle[regular]}\enspace
+        {\small\bfseries Candidatos}\\
+        {\footnotesize\color{cgris} Estudiantes del pool con índice mayor}
+      \end{tarjeta}\vspace{4pt}
+      \begin{tarjeta}
+        \textcolor{camarillo}{\faCircle[regular]}\enspace
+        {\small\bfseries \texttt{es\_valido()}}\\
+        {\footnotesize\color{cgris} No supera el máx. por ciudad}
+      \end{tarjeta}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \begin{tarjeta}
+        \textcolor{camarillo}{\faCircle[regular]}\enspace
+        {\small\bfseries \texttt{puede\_podar()}}\\
+        {\footnotesize\color{cgris} Los candidatos restantes no alcanzan para cumplir un mínimo}
+      \end{tarjeta}\vspace{4pt}
+      \begin{tarjeta}
+        \textcolor{camarillo}{\faCircle[regular]}\enspace
+        {\small\bfseries Solución completa}\\
+        {\footnotesize\color{cgris} Tamaño exacto + todos los mínimos cumplidos}
+      \end{tarjeta}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+% ── 4. LAS CUOTAS ─────────────────────────────────────────────────────────────
+\begin{frame}{Las \alert{cuotas} a respetar}
+  \vspace{0.3cm}
+  \begin{columns}[c]
+    \begin{column}{0.23\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\normalsize\bfseries $\geq 2$}\\[2pt]
+          {\footnotesize\color{cgris} de\\Computación}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+    \begin{column}{0.23\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\normalsize\bfseries $\geq 1$}\\[2pt]
+          {\footnotesize\color{cgris} de\\Matemáticas}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+    \begin{column}{0.23\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\normalsize\bfseries $\leq 3$}\\[2pt]
+          {\footnotesize\color{cgris} por\\ciudad}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+    \begin{column}{0.23\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\normalsize\bfseries $\geq 2$}\\[2pt]
+          {\footnotesize\color{cgris} de\\semestre 1}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+  \end{columns}
+  \vspace{0.5cm}
+  \begin{center}
+    {\footnotesize\color{cgris} Conjunto 1 — Base}
+  \end{center}
+\end{frame}
+
+
+% ── 5. LA PODA CLAVE ─────────────────────────────────────────────────────────
+{
+\setbeamercolor{background canvas}{bg=cverde}
+\setbeamercolor{frametitle}{bg=cverde, fg=white}
+\begin{frame}{La poda que lo cambió todo}
+  \begin{center}
+    {\normalsize Sin la \textbf{poda global de ciudades}:}\\[0.3cm]
+    {\large el Conjunto 3 tardaba \alert{\textbf{8,380 llamadas}}}\\[0.1cm]
+    {\large Con ella, termina en \alert{\textbf{1 sola llamada}}}
+  \end{center}
+  \vspace{0.5cm}
+  \begin{formula}
+    {\small\ttfamily\color{white}
+    capacidad = $\sum$ (máx/ciudad $-$ actuales/ciudad)\\
+    si capacidad $<$ faltantes $\;\rightarrow\;$ \textbf{imposible}}
+  \end{formula}
+\end{frame}
+}
+
+
+% ── 6. EL CÓDIGO ─────────────────────────────────────────────────────────────
+\begin{frame}[fragile]{El algoritmo en \alert{Python}}
+  \vspace{0.2cm}
+  \begin{tcolorbox}[colback=ccode, colframe=white!10!ccode, arc=8pt, boxrule=0.5pt,
+      left=8pt, right=8pt, top=6pt, bottom=6pt]
+    \begin{lstlisting}[style=py]
+def backtracking(pool, muestra, cuotas, soluciones, contadores, inicio=0):
+    contadores["llamadas"] += 1
+    if es_solucion_completa(muestra, cuotas):   # caso base
+        soluciones.append(list(muestra))
+        return
+    if puede_podar(muestra, pool[inicio:], cuotas):  # poda
+        return
+    for i, candidato in enumerate(pool[inicio:]):
+        if es_valido(muestra, candidato, cuotas):
+            muestra.append(candidato)            # ELEGIR
+            backtracking(pool, muestra, cuotas, soluciones, contadores, inicio+i+1)
+            muestra.pop()                        # RETROCEDER
+    \end{lstlisting}
+  \end{tcolorbox}
+\end{frame}
+
+
+% ── 7. TABLA DE RESULTADOS ────────────────────────────────────────────────────
+{
+\setbeamercolor{background canvas}{bg=clight}
+\setbeamercolor{normal text}{fg=cdark}
+\setbeamercolor{frametitle}{bg=clight, fg=cdark}
+\begin{frame}{3 conjuntos de \textcolor{cverde}{cuotas}}
+  \vspace{0.4cm}
+  \begin{center}
+    \begin{tabular}{lcccc}
+      \toprule
+      \rowcolor{cverde}
+      \color{white}\textbf{Conjunto} &
+      \color{white}\textbf{Tamaño} &
+      \color{white}\textbf{Llamadas} &
+      \color{white}\textbf{Podas} &
+      \color{white}\textbf{Resultado}\\
+      \midrule
+      C1 — Base         & 6 & 7          & 0          & \textcolor{cverde}{\bfseries\faCheckCircle\ Sí}\\
+      C2 — Diversidad   & 6 & 7          & 0          & \textcolor{cverde}{\bfseries\faCheckCircle\ Sí}\\
+      C3 — Sin solución & 7 & \textbf{1} & \textbf{1} & \textcolor{red!70!black}{\bfseries\faTimesCircle\ No}\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+}
+
+
+% ── 8. EXTENSIÓN ─────────────────────────────────────────────────────────────
+\begin{frame}{La muestra \alert{más equilibrada}}
+  \vspace{0.3cm}
+  \begin{columns}[c]
+    \begin{column}{0.44\textwidth}
+      \begin{center}
+        {\fontsize{42}{46}\selectfont\bfseries\color{camarillo} 10{,}734}\\[4pt]
+        {\small\color{cgris} muestras válidas encontradas}
+      \end{center}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{center}
+        {\fontsize{42}{46}\selectfont\bfseries\color{camarillo} 0.77}\\[4pt]
+        {\small\color{cgris} score de balance máximo}
+      \end{center}
+    \end{column}
+  \end{columns}
+  \vspace{0.7cm}
+  \begin{center}
+    {\small\color{cgris}
+      La mejor muestra incluye los \textbf{4 programas}:\\
+      Comp.\,(2) · Mat.\,(2) · Est.\,(1) · Fís.\,(1)}
+  \end{center}
+\end{frame}
+
+
+% ── 9. DECISIONES DEL GRUPO ──────────────────────────────────────────────────
+\begin{frame}{Decisiones \alert{del grupo}}
+  \vspace{0.2cm}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{tarjeta}
+        {\small\bfseries Representación}\\
+        {\footnotesize\color{cgris} Diccionarios Python — más legibles que índices numéricos}
+      \end{tarjeta}\vspace{4pt}
+      \begin{tarjeta}
+        {\small\bfseries Bug encontrado}\\
+        {\footnotesize\color{cgris} C3 tardaba 8,380 llamadas sin poda global de ciudades}
+      \end{tarjeta}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{tarjeta}
+        {\small\bfseries Solución al bug}\\
+        {\footnotesize\color{cgris} Condición 0: capacidad total de ciudades $<$ faltantes}
+      \end{tarjeta}\vspace{4pt}
+      \begin{tarjeta}
+        {\small\bfseries Índice creciente}\\
+        {\footnotesize\color{cgris} Evita combinaciones duplicadas sin memoria extra}
+      \end{tarjeta}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+% ── 10. EQUIPO ────────────────────────────────────────────────────────────────
+\begin{frame}{¿Quién hizo \alert{qué?}}
+  \vspace{0.3cm}
+  \begin{columns}[c]
+    \begin{column}{0.3\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\large\faCode\par}\vspace{4pt}
+          {\small\bfseries Sebastián\\Gutiérrez}\\[3pt]
+          {\footnotesize\color{cgris} Algoritmo y poda}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\large\faChartBar\par}\vspace{4pt}
+          {\small\bfseries Mateo\\Bernal}\\[3pt]
+          {\footnotesize\color{cgris} Dataset, gráficas y extensión}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \begin{tarjeta}
+        \begin{center}
+          {\large\faFileAlt\par}\vspace{4pt}
+          {\small\bfseries Thomas\\Ramírez}\\[3pt]
+          {\footnotesize\color{cgris} Informe, presentación y demo}
+        \end{center}
+      \end{tarjeta}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+% ── 11. CONCLUSIONES ─────────────────────────────────────────────────────────
+{
+\setbeamercolor{background canvas}{bg=cverde}
+\setbeamercolor{frametitle}{bg=cverde, fg=white}
+\begin{frame}{Lo que aprendimos}
+  \vspace{0.3cm}
+  \begin{columns}[T]
+    \begin{column}{0.3\textwidth}
+      \begin{tarjetaverde}
+        \begin{center}
+          {\small\bfseries La poda es el motor}\\[4pt]
+          {\footnotesize Sin ella: miles de llamadas.\\Con ella: 7.}
+        \end{center}
+      \end{tarjetaverde}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \begin{tarjetaverde}
+        \begin{center}
+          {\small\bfseries Imposible en 1 llamada}\\[4pt]
+          {\footnotesize La poda global detecta sin explorar ninguna rama.}
+        \end{center}
+      \end{tarjetaverde}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \begin{tarjetaverde}
+        \begin{center}
+          {\small\bfseries Válida $\neq$ Óptima}\\[4pt]
+          {\footnotesize 10,734 muestras válidas, solo una con balance 0.77.}
+        \end{center}
+      \end{tarjetaverde}
+    \end{column}
+  \end{columns}
+\end{frame}
+}
+
+
+% ── 12. CIERRE ────────────────────────────────────────────────────────────────
+\begin{frame}
+  \begin{center}
+    \vspace{1.2cm}
+    {\large Un buen algoritmo no solo prueba caminos.}\\[0.4cm]
+    {\Large\bfseries\color{camarillo} Aprende cuándo dejar de probarlos.}
+    \vspace{1.5cm}
+
+    {\footnotesize\color{cgris}
+      UNAL Manizales · Intro a Ciencias de la Computación · 17 junio 2026}
+  \end{center}
+\end{frame}
+
+
+\end{document}

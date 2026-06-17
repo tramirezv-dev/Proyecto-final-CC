@@ -1,0 +1,665 @@
+% =============================================================================
+% EXPLICACIÓN DEL CÓDIGO — PROYECTO 4: MUESTRA INTELIGENTE
+% Universidad Nacional de Colombia — Sede Manizales
+% Introducción a las Ciencias de la Computación
+% Compilar con pdfLaTeX en Overleaf
+% =============================================================================
+
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{margin=2.2cm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{setspace}
+\usepackage{tikz}
+\usetikzlibrary{trees, positioning, arrows.meta, shapes.geometric, decorations.pathreplacing}
+
+\tcbuselibrary{skins, breakable}
+
+% ── Colores UNAL ──────────────────────────────────────────────────────────────
+\definecolor{unalverde}{HTML}{006847}
+\definecolor{unalamarillo}{HTML}{FDD000}
+\definecolor{accentazul}{HTML}{1F4E79}
+\definecolor{codebg}{HTML}{1A202C}
+\definecolor{codefg}{HTML}{E2E8F0}
+\definecolor{codekw}{HTML}{63B3ED}
+\definecolor{codefn}{HTML}{F6E05E}
+\definecolor{codecm}{HTML}{718096}
+\definecolor{codest}{HTML}{68D391}
+\definecolor{codenum}{HTML}{FC8181}
+\definecolor{grisneutro}{HTML}{F7FAFC}
+\definecolor{bordegris}{HTML}{E2E8F0}
+
+% ── Hipervínculos ─────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=unalverde,
+  urlcolor=accentazul,
+}
+
+% ── Encabezado ────────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{unalverde}{\textbf{Explicación del Código}} — Proyecto 4}
+\fancyhead[R]{\small UNAL Manizales · 2026}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Títulos ───────────────────────────────────────────────────────────────────
+\titleformat{\section}
+  {\large\bfseries\color{unalverde}}{\thesection.}{0.5em}{}[\titlerule]
+\titleformat{\subsection}
+  {\normalsize\bfseries\color{accentazul}}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{gray}}{\thesubsubsection.}{0.5em}{}
+
+% ── Estilo de código ──────────────────────────────────────────────────────────
+\lstdefinestyle{python}{
+  language=Python,
+  basicstyle=\ttfamily\small\color{codefg},
+  keywordstyle=\color{codekw}\bfseries,
+  commentstyle=\color{codecm}\itshape,
+  stringstyle=\color{codest},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  framerule=0pt,
+  backgroundcolor=\color{codebg},
+  numbers=left,
+  numberstyle=\tiny\color{codecm},
+  numbersep=8pt,
+  xleftmargin=14pt,
+  tabsize=4,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1,
+}
+
+% ── Cajas ─────────────────────────────────────────────────────────────────────
+\newtcolorbox{quehace}{
+  colback=unalverde!8, colframe=unalverde,
+  fonttitle=\bfseries\small\color{white},
+  title=Qué hace esta función,
+  breakable, left=6pt, right=6pt, top=4pt, bottom=4pt,
+}
+\newtcolorbox{porqueimporta}{
+  colback=accentazul!8, colframe=accentazul,
+  fonttitle=\bfseries\small\color{white},
+  title=Por qué importa,
+  breakable, left=6pt, right=6pt, top=4pt, bottom=4pt,
+}
+\newtcolorbox{ejemplo}{
+  colback=gray!6, colframe=gray!40,
+  fonttitle=\bfseries\small,
+  title=Ejemplo concreto,
+  breakable, left=6pt, right=6pt, top=4pt, bottom=4pt,
+}
+
+% =============================================================================
+\begin{document}
+% =============================================================================
+
+% ── Portada ───────────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{0.8cm}
+  {\color{unalverde}\rule{\linewidth}{2.5pt}}
+  \vspace{0.5cm}
+
+  {\LARGE\bfseries\color{unalverde} Universidad Nacional de Colombia}\\[0.2cm]
+  {\large Sede Manizales · Facultad de Ciencias Exactas y Naturales}\\[0.15cm]
+  {\normalsize Introducción a las Ciencias de la Computación}
+
+  \vspace{0.8cm}
+  {\color{unalverde}\rule{\linewidth}{1pt}}
+  \vspace{1.2cm}
+
+  {\Huge\bfseries Explicación del Código}\\[0.4cm]
+  {\Large Proyecto 4 — Muestra Inteligente}\\[0.3cm]
+  {\large\itshape Qué hace cada función y cómo funciona el algoritmo}
+
+  \vspace{1.6cm}
+
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Integrante}    & \textbf{Rol} \\
+    \midrule
+    Sebastián Gutiérrez    & Algoritmo backtracking \\
+    Mateo Bernal           & Dataset y análisis \\
+    Thomas Ramírez         & Presentación e informe \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{1.4cm}
+
+  \begin{tabular}{rl}
+    \textbf{Profesor:}   & Carlos Manuel Orrego Franco \\
+    \textbf{Proyecto:}   & 4 — Trabajo Final \\
+    \textbf{Exposición:} & 17 de junio de 2026 \\
+  \end{tabular}
+
+  \vspace{1cm}
+  {\color{unalverde}\rule{\linewidth}{2.5pt}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% =============================================================================
+\section{El problema en palabras simples}
+% =============================================================================
+
+Bienestar Universitario tiene 20 estudiantes disponibles para una encuesta piloto. Solo puede encuestar a 6, pero necesita que esos 6 sean representativos: que no queden todos de Computación, ni todos de Manizales, ni todos de primer semestre.
+
+Para garantizar la representatividad, se imponen \textbf{cuotas}:
+\begin{itemize}[noitemsep]
+  \item Al menos 2 estudiantes de Computación
+  \item Al menos 1 de Matemáticas
+  \item Máximo 3 por ciudad (para no sesgar hacia Manizales)
+  \item Al menos 2 de primer semestre
+\end{itemize}
+
+El algoritmo construye la muestra \textbf{paso a paso}: elige un estudiante, verifica si viola alguna cuota máxima, y si no viola ninguna, lo agrega. Cuando ve que los candidatos restantes no alcanzan para cumplir alguna cuota mínima, \textbf{retrocede} y prueba otra opción. Eso es el backtracking.
+
+\vspace{0.3cm}
+\begin{tcolorbox}[colback=unalamarillo!15, colframe=unalamarillo!60, title=\textbf{Sin backtracking vs. con backtracking}]
+Sin el algoritmo habría que evaluar $\binom{20}{6} = 38{,}760$ combinaciones posibles a mano.\\
+Con backtracking y poda, los Conjuntos 1 y 2 se resuelven en \textbf{7 llamadas recursivas}.
+\end{tcolorbox}
+
+% =============================================================================
+\section{Estructura del código}
+% =============================================================================
+
+El código está dividido en dos archivos con el mismo contenido:
+
+\begin{center}
+\begin{tabular}{lp{8cm}}
+  \toprule
+  \textbf{Archivo} & \textbf{Propósito} \\
+  \midrule
+  \texttt{src/funciones.py}    & Módulo de funciones puras, importable en cualquier proyecto \\
+  \texttt{notebook/proyecto.py} & Las mismas funciones organizadas en 16 celdas para Google Colab, más el dataset, las gráficas y las pruebas \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+El algoritmo consta de \textbf{7 funciones} organizadas en dos grupos:
+
+\begin{center}
+\begin{tabular}{llp{7cm}}
+  \toprule
+  \textbf{Función} & \textbf{Grupo} & \textbf{Rol} \\
+  \midrule
+  \texttt{obtener\_conteos()}        & Auxiliar   & Cuenta estudiantes en la muestra actual por cada categoría \\
+  \texttt{candidatos\_validos()}     & Auxiliar   & Filtra candidatos que ya no pueden entrar por cuota máxima \\
+  \texttt{es\_solucion\_completa()}  & Backtrack  & ¿La muestra actual es solución válida y final? \\
+  \texttt{obtener\_candidatos()}     & Backtrack  & ¿Qué estudiantes pueden intentarse a continuación? \\
+  \texttt{es\_valido()}             & Backtrack  & ¿Agregar este candidato viola algún máximo? \\
+  \texttt{puede\_podar()}           & Backtrack  & ¿Es imposible completar la muestra desde aquí? \\
+  \texttt{backtracking()}           & Backtrack  & Algoritmo principal que integra todo lo anterior \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% =============================================================================
+\section{Función \texttt{obtener\_conteos()}}
+% =============================================================================
+
+\begin{quehaec}
+Dada la muestra actual (lista de estudiantes ya seleccionados), cuenta cuántos hay de cada programa, ciudad, jornada, y cuántos son de semestre 1. Retorna cuatro valores de una vez.
+\end{quehaec}
+
+\begin{lstlisting}[style=python]
+from collections import Counter
+
+def obtener_conteos(muestra):
+    por_programa = Counter(e["programa"] for e in muestra)
+    por_ciudad   = Counter(e["ciudad"]   for e in muestra)
+    por_jornada  = Counter(e["jornada"]  for e in muestra)
+    semestre_1   = sum(1 for e in muestra if e["semestre"] == 1)
+    return por_programa, por_ciudad, por_jornada, semestre_1
+\end{lstlisting}
+
+\begin{ejemplo}
+Si la muestra actual tiene a los estudiantes E1 (Computación, Manizales, semestre 1) y E2 (Matemáticas, Pereira, semestre 1):
+\begin{itemize}[noitemsep]
+  \item \texttt{por\_programa} = \texttt{\{"Computacion": 1, "Matematicas": 1\}}
+  \item \texttt{por\_ciudad}   = \texttt{\{"Manizales": 1, "Pereira": 1\}}
+  \item \texttt{semestre\_1}  = 2
+\end{itemize}
+\end{ejemplo}
+
+\begin{porqueimporta}
+\texttt{Counter} es una subclase de diccionario que devuelve 0 cuando se accede a una clave inexistente, en lugar de lanzar un error. Esto permite escribir \texttt{por\_programa.get("Fisica", 0)} sin necesidad de verificar primero si Física existe en la muestra.
+\end{porqueimporta}
+
+% =============================================================================
+\section{Función \texttt{candidatos\_validos()}}
+% =============================================================================
+
+\begin{quehaec}
+Del pool restante, filtra y devuelve solo los estudiantes que todavía \emph{pueden} entrar a la muestra sin violar la cuota máxima por ciudad. Un estudiante de Manizales, por ejemplo, no puede entrar si Manizales ya tiene 3 seleccionados (cuando el máximo es 3).
+\end{quehaec}
+
+\begin{lstlisting}[style=python]
+def candidatos_validos(pool_restante, muestra, cuotas):
+    max_c = cuotas.get("max_por_ciudad", float("inf"))
+    _, por_ciudad, _, _ = obtener_conteos(muestra)
+    return [e for e in pool_restante
+            if por_ciudad.get(e["ciudad"], 0) < max_c]
+\end{lstlisting}
+
+\begin{porqueimporta}
+La poda necesita saber cuántos candidatos \emph{reales} quedan. Si Manizales ya llegó al tope, los estudiantes de Manizales no cuentan como candidatos disponibles para cubrir ningún mínimo de programa o semestre. Sin este filtro, la poda podría ser demasiado optimista y dejar pasar ramas que en realidad no tienen solución.
+\end{porqueimporta}
+
+% =============================================================================
+\section{Función \texttt{es\_solucion\_completa()}}
+% =============================================================================
+
+\begin{quehaec}
+Verifica si la muestra actual es una \textbf{solución válida y final}. Solo retorna \texttt{True} cuando se cumplen \emph{todas} las condiciones al mismo tiempo:
+\begin{enumerate}[noitemsep]
+  \item La muestra tiene exactamente el tamaño pedido (ej: 6 estudiantes)
+  \item Cada programa cumple su mínimo requerido (ej: Computación $\geq 2$)
+  \item Hay al menos el mínimo de semestre 1
+  \item Hay al menos el mínimo de jornada nocturna
+\end{enumerate}
+\end{quehaec}
+
+\begin{lstlisting}[style=python]
+def es_solucion_completa(muestra, cuotas):
+    if len(muestra) != cuotas["tamano"]:
+        return False
+
+    por_prog, _, por_jornada, sem1 = obtener_conteos(muestra)
+
+    for prog, minimo in cuotas["min_programa"].items():
+        if por_prog.get(prog, 0) < minimo:
+            return False
+
+    if sem1 < cuotas["min_semestre_1"]:
+        return False
+
+    if por_jornada.get("Nocturna", 0) < cuotas["min_nocturna"]:
+        return False
+
+    return True
+\end{lstlisting}
+
+\begin{porqueimporta}
+Esta es la \textbf{condición de parada exitosa} del algoritmo. Cuando retorna \texttt{True}, el algoritmo guarda la muestra y para (o sigue buscando si se pidió encontrar todas las soluciones). Es importante que verifique el tamaño exacto primero: no queremos guardar una muestra de 4 estudiantes aunque todos cumplan los mínimos parcialmente.
+\end{porqueimporta}
+
+% =============================================================================
+\section{Función \texttt{obtener\_candidatos()}}
+% =============================================================================
+
+\begin{quehaec}
+Retorna todos los estudiantes del pool desde la posición \texttt{inicio} en adelante. Es decir: \texttt{pool[inicio:]}.
+\end{quehaec}
+
+\begin{lstlisting}[style=python]
+def obtener_candidatos(pool, inicio):
+    return pool[inicio:]
+\end{lstlisting}
+
+\begin{porqueimporta}
+El \textbf{índice creciente} es el truco clave para evitar generar la misma muestra dos veces. Si ya elegí al estudiante de la posición 4, el siguiente candidato solo puede ser el 5, 6, 7\ldots nunca el 1, 2, 3. Esto garantiza que cada combinación se genera exactamente una vez y nunca en distinto orden (elimina permutaciones duplicadas sin necesitar memoria extra).
+
+\medskip
+Sin este truco, el algoritmo generaría la misma muestra \{E1, E3, E5\} en todos los órdenes posibles: (E1, E3, E5), (E1, E5, E3), (E3, E1, E5), etc. Con el índice creciente, solo genera la versión donde E1 aparece antes que E3, que aparece antes que E5.
+\end{porqueimporta}
+
+% =============================================================================
+\section{Función \texttt{es\_valido()}}
+% =============================================================================
+
+\begin{quehaec}
+Pregunta: ``¿Se puede agregar este candidato a la muestra sin violar ninguna cuota \textbf{máxima}?''. Solo verifica \texttt{max\_por\_ciudad}, que es el único techo definido en el problema.
+\end{quehaec}
+
+\begin{lstlisting}[style=python]
+def es_valido(muestra, candidato, cuotas):
+    max_c = cuotas.get("max_por_ciudad", float("inf"))
+    ya_en_ciudad = sum(1 for e in muestra
+                       if e["ciudad"] == candidato["ciudad"])
+    return ya_en_ciudad < max_c
+\end{lstlisting}
+
+\begin{ejemplo}
+Con \texttt{max\_por\_ciudad = 3}: si la muestra ya tiene 3 estudiantes de Manizales y el candidato es también de Manizales, \texttt{es\_valido} retorna \texttt{False} y el candidato se rechaza (contado como poda).
+\end{ejemplo}
+
+\begin{porqueimporta}
+Las cuotas mínimas \textbf{no van aquí}. Un mínimo (``al menos 2 de Computación'') no puede verificarse mirando un solo candidato: depende de cuántos candidatos de Computación quedan disponibles en el futuro. Esa verificación es tarea de \texttt{puede\_podar()}. La separación entre máximos en \texttt{es\_valido} y mínimos en \texttt{puede\_podar} fue la decisión de diseño más importante del proyecto.
+\end{porqueimporta}
+
+% =============================================================================
+\section{Función \texttt{puede\_podar()}}
+% =============================================================================
+
+\begin{quehaec}
+Es la función más importante para la eficiencia. Detecta si es \textbf{imposible completar la muestra} desde el estado actual, aunque todavía no se haya llenado. Retorna \texttt{True} cuando detecta alguna de estas 5 situaciones de imposibilidad.
+\end{quehaec}
+
+\begin{lstlisting}[style=python]
+def puede_podar(muestra, pool_restante, cuotas):
+    faltantes = cuotas["tamano"] - len(muestra)
+    _, por_ciudad, _, _ = obtener_conteos(muestra)
+
+    # Condicion 0: capacidad global de ciudades < faltantes
+    max_c = cuotas.get("max_por_ciudad", float("inf"))
+    if max_c < float("inf"):
+        todas_ciudades = (set(e["ciudad"] for e in pool_restante)
+                          | set(por_ciudad))
+        capacidad = sum(max(0, max_c - por_ciudad.get(c, 0))
+                        for c in todas_ciudades)
+        if capacidad < faltantes:
+            return True   # IMPOSIBLE
+
+    efectivos = candidatos_validos(pool_restante, muestra, cuotas)
+
+    # Condicion 1: candidatos validos insuficientes
+    if len(efectivos) < faltantes:
+        return True
+
+    por_prog, _, por_jornada, sem1 = obtener_conteos(muestra)
+
+    # Condicion 2: minimo de programa inalcanzable
+    for prog, minimo in cuotas["min_programa"].items():
+        disp = sum(1 for e in efectivos if e["programa"] == prog)
+        if por_prog.get(prog, 0) + disp < minimo:
+            return True
+
+    # Condicion 3: minimo de semestre 1 inalcanzable
+    disp_sem1 = sum(1 for e in efectivos if e["semestre"] == 1)
+    if sem1 + disp_sem1 < cuotas["min_semestre_1"]:
+        return True
+
+    # Condicion 4: minimo de jornada nocturna inalcanzable
+    disp_noct = sum(1 for e in efectivos if e["jornada"] == "Nocturna")
+    if por_jornada.get("Nocturna", 0) + disp_noct < cuotas["min_nocturna"]:
+        return True
+
+    return False   # No se detectó imposibilidad
+\end{lstlisting}
+
+\subsection{Las 5 condiciones explicadas}
+
+\subsubsection{Condición 0 — Poda global de ciudades (la más poderosa)}
+
+Calcula la capacidad total disponible: para cada ciudad, cuántos estudiantes más pueden entrar antes de llegar al tope. Si esa capacidad total es menor que los estudiantes que aún faltan, es imposible terminar la muestra.
+
+\[
+\text{capacidad} = \sum_{\text{ciudad}} \max\!\bigl(0,\ \texttt{max\_ciudad} - \text{actuales\_en\_ciudad}\bigr)
+\]
+
+\medskip
+Esta condición detecta el Conjunto 3 (imposible) \textbf{en la primera llamada}:
+\[
+3 \text{ ciudades} \times \text{máx } 2 = 6 \text{ plazas} < 7 \text{ requeridos} \implies \textbf{PODAR}
+\]
+
+\subsubsection{Condición 1 — Candidatos insuficientes}
+
+Si los candidatos válidos restantes son menos que los estudiantes que faltan, no hay forma de completar la muestra aunque todos se pudieran agregar.
+
+\subsubsection{Condición 2 — Mínimo de programa inalcanzable}
+
+Para cada programa con cuota mínima:
+\[
+\text{ya en muestra} + \text{disponibles en pool restante} < \text{mínimo requerido} \implies \textbf{PODAR}
+\]
+
+Ejemplo: si necesito 2 de Computación, ya tengo 1, pero solo queda 0 de Computación en el pool restante → imposible.
+
+\subsubsection{Condición 3 — Mínimo de semestre 1 inalcanzable}
+
+Misma lógica que la condición 2, pero aplicada al campo \texttt{semestre == 1}.
+
+\subsubsection{Condición 4 — Mínimo de jornada nocturna inalcanzable}
+
+Misma lógica aplicada al campo \texttt{jornada == "Nocturna"}.
+
+\begin{porqueimporta}
+Sin la Condición 0, el Conjunto 3 tardaba \textbf{8,380 llamadas recursivas} en concluir que no había solución. Con ella, se detecta en \textbf{1 sola llamada}. Esta mejora fue el bug más importante que encontramos durante el desarrollo (documentado en la bitácora).
+\end{porqueimporta}
+
+% =============================================================================
+\section{Función \texttt{backtracking()}}
+% =============================================================================
+
+\begin{quehaec}
+Es el algoritmo principal. Se llama a sí mismo recursivamente. Integra las 6 funciones anteriores en el ciclo de búsqueda. Para cada estado posible: verifica si ya es solución, poda si es imposible, o intenta agregar cada candidato válido y retrocede si no funciona.
+\end{quehaec}
+
+\begin{lstlisting}[style=python]
+def backtracking(pool, muestra, cuotas, soluciones, contadores,
+                 inicio=0, limite=1):
+    contadores["llamadas"] += 1         # 1. Contar llamada
+
+    if es_solucion_completa(muestra, cuotas):   # 2. Caso base exitoso
+        soluciones.append(list(muestra))
+        return
+
+    if limite is not None and len(soluciones) >= limite:   # 3. Limite
+        return
+
+    pool_restante = obtener_candidatos(pool, inicio)  # 4. Candidatos
+
+    if puede_podar(muestra, pool_restante, cuotas):   # 5. Poda global
+        contadores["podas"] += 1
+        return
+
+    if len(muestra) >= cuotas["tamano"]:   # 6. Muestra llena sin exito
+        return
+
+    for i, candidato in enumerate(pool_restante):    # 7. Ciclo principal
+        if limite is not None and len(soluciones) >= limite:
+            return
+
+        if es_valido(muestra, candidato, cuotas):
+            muestra.append(candidato)               # ELEGIR
+            backtracking(pool, muestra, cuotas,
+                         soluciones, contadores,
+                         inicio + i + 1, limite)
+            muestra.pop()                           # RETROCEDER
+        else:
+            contadores["podas"] += 1
+\end{lstlisting}
+
+\subsection{El flujo paso a paso}
+
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item \textbf{Contar la llamada:} Incrementa el contador de llamadas recursivas para medir la eficiencia.
+  \item \textbf{Caso base exitoso:} Si la muestra actual ya es completa y válida, se guarda y se retorna.
+  \item \textbf{Límite de soluciones:} Si ya se encontraron suficientes soluciones (normalmente 1), se para.
+  \item \textbf{Obtener candidatos:} Estudiantes desde \texttt{inicio} en adelante (índice creciente).
+  \item \textbf{Poda global:} Si \texttt{puede\_podar()} detecta imposibilidad, se descarta toda esta rama.
+  \item \textbf{Muestra llena sin ser solución:} Caso de guardia que no debería ocurrir con una poda correcta.
+  \item \textbf{Ciclo principal:} Para cada candidato disponible:
+    \begin{itemize}[noitemsep]
+      \item Si \texttt{es\_valido()}: \textbf{ELEGIR} (append) → \textbf{RECURSAR} (llamada recursiva) → \textbf{RETROCEDER} (pop)
+      \item Si no es válido: contar como poda y continuar con el siguiente
+    \end{itemize}
+\end{enumerate}
+
+\subsection{El retroceso en detalle}
+
+\texttt{muestra.pop()} es la operación de backtracking propiamente dicha. Después de explorar una rama completa (todos los posibles conjuntos que incluyen a este candidato), se \emph{deshace} esa elección y se prueba el siguiente candidato. La muestra se modifica \emph{in-place} (sin copias) para mayor eficiencia.
+
+\subsection{El parámetro \texttt{limite}}
+
+\begin{itemize}[noitemsep]
+  \item \texttt{limite=1} → para al encontrar la primera solución válida (modo normal)
+  \item \texttt{limite=None} → encuentra todas las soluciones válidas (usado en la extensión)
+\end{itemize}
+
+Con \texttt{limite=None} sobre el Conjunto 1 se encontraron \textbf{10,734 muestras válidas}, permitiendo elegir la más equilibrada.
+
+% =============================================================================
+\section{El árbol de búsqueda visualizado}
+% =============================================================================
+
+Para un pool de 5 estudiantes eligiendo 3 con al menos 1 de Computación y máx 2 por ciudad:
+
+\begin{center}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=4.2cm, level distance=1.3cm},
+  level 2/.style={sibling distance=2.0cm, level distance=1.2cm},
+  level 3/.style={sibling distance=1.3cm, level distance=1.1cm},
+  every node/.style={font=\tiny, draw=gray!60, rounded corners, inner sep=2.5pt, fill=white},
+  sol/.style={fill=unalverde!25, draw=unalverde, font=\tiny\bfseries},
+  poda/.style={fill=red!15, draw=red!60, font=\tiny},
+  edge from parent/.style={draw=gray!60, -Stealth, thin},
+  scale=0.88, transform shape,
+]
+\node [fill=gray!15] {$\emptyset$}
+  child { node {E1-Comp} edge from parent
+    child { node {E1,E2} edge from parent
+      child { node [sol] {\checkmark E1,E2,E3} }
+      child { node [sol] {\checkmark E1,E2,E4} }
+      child { node [sol] {\checkmark E1,E2,E5} }
+    }
+    child { node {E1,E3} edge from parent
+      child { node [sol] {\checkmark E1,E3,E4} }
+      child { node [sol] {\checkmark E1,E3,E5} }
+    }
+    child { node {E1,E4} edge from parent
+      child { node [sol] {\checkmark E1,E4,E5} }
+    }
+  }
+  child { node {E2-Mat} edge from parent
+    child { node {E2,E3} edge from parent
+      child { node [sol] {\checkmark E2,E3,E4} }
+      child { node [poda] {PODA: sin Comp} }
+    }
+    child { node [poda] {PODA: ciudad} edge from parent [draw=red!50] }
+  }
+  child { node [poda] {PODA: E3 sin Comp} edge from parent [draw=red!50] };
+\end{tikzpicture}
+\end{center}
+
+Los nodos \textcolor{unalverde!70!black}{\textbf{verdes}} son soluciones encontradas. Los nodos \textcolor{red!70!black}{\textbf{rojos}} son ramas descartadas por la poda. El nodo que empieza con E3 (Estadística) se poda de inmediato porque ningún candidato posterior puede cubrir el mínimo de Computación.
+
+% =============================================================================
+\section{Las 16 celdas del Colab}
+% =============================================================================
+
+\begin{center}
+\begin{tabular}{clp{8.5cm}}
+  \toprule
+  \textbf{Celda} & \textbf{Nombre} & \textbf{Qué hace} \\
+  \midrule
+  1  & Importaciones        & Carga pandas, matplotlib; configura backend Agg si no es Colab; crea carpeta \texttt{resultados/} \\
+  2  & Dataset              & Define la lista \texttt{POOL} con 20 diccionarios (un estudiante cada uno) \\
+  3  & Exploración          & Imprime la distribución del pool por programa, semestre, ciudad y jornada con barras de \texttt{\#} \\
+  4  & Cuotas               & Define \texttt{CUOTAS\_1}, \texttt{CUOTAS\_2}, \texttt{CUOTAS\_3} como diccionarios de restricciones \\
+  5  & Auxiliares           & Define \texttt{obtener\_conteos()} y \texttt{candidatos\_validos()} \\
+  6  & Núcleo backtracking  & Define las 5 funciones del backtracking \\
+  7  & Reporte              & Define \texttt{ejecutar\_busqueda()} con reporte completo en pantalla \\
+  8  & Ejemplo manual       & Corre el backtracking sobre 5 estudiantes para mostrar el árbol didáctico \\
+  9  & Prueba C1            & Ejecuta Conjunto 1 (Base) — solución en 7 llamadas \\
+  10 & Prueba C2            & Ejecuta Conjunto 2 (Alta diversidad) — solución en 7 llamadas \\
+  11 & Prueba C3            & Ejecuta Conjunto 3 (Sin solución) — detectado en 1 llamada \\
+  12 & Tabla resumen        & Compara los 3 conjuntos en una tabla de resultados \\
+  13 & Gráfica distribución & Genera y guarda \texttt{comparacion\_distribuciones.png} \\
+  14 & Gráfica eficiencia   & Genera y guarda \texttt{eficiencia\_backtracking.png} \\
+  15 & Extensión            & Busca las 10{,}734 muestras válidas del C1 y elige la más equilibrada \\
+  16 & Conclusiones         & Imprime las 4 conclusiones del proyecto \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% =============================================================================
+\section{Resultados obtenidos}
+% =============================================================================
+
+\subsection{Las tres pruebas}
+
+\begin{center}
+\begin{tabular}{lcccc}
+  \toprule
+  \textbf{Conjunto} & \textbf{Tamaño} & \textbf{Llamadas rec.} & \textbf{Ramas podadas} & \textbf{Solución} \\
+  \midrule
+  C1 — Base              & 6 & 7  & 0  & Sí \\
+  C2 — Alta diversidad   & 6 & 7  & 0  & Sí \\
+  C3 — Sin solución      & 7 & \textbf{1}  & \textbf{1}  & \textbf{No} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Muestra del Conjunto 1 (primera solución válida)}
+
+\begin{center}
+\begin{tabular}{cllcc}
+  \toprule
+  \textbf{ID} & \textbf{Programa} & \textbf{Ciudad} & \textbf{Semestre} & \textbf{Jornada} \\
+  \midrule
+  1 & Computación & Manizales & 1 & Diurna   \\
+  2 & Matemáticas & Pereira   & 1 & Diurna   \\
+  3 & Estadística & Armenia   & 2 & Nocturna \\
+  4 & Computación & Manizales & 2 & Diurna   \\
+  5 & Matemáticas & Pereira   & 3 & Nocturna \\
+  6 & Estadística & Armenia   & 1 & Diurna   \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Verificación:} Computación: 2 $\geq 2$ \checkmark \quad Matemáticas: 2 $\geq 1$ \checkmark \quad Máx ciudad: 2 $\leq 3$ \checkmark \quad Semestre 1: 3 $\geq 2$ \checkmark
+
+\subsection{Extensión — muestra más equilibrada}
+
+Con \texttt{limite=None} sobre el Conjunto 1 se encontraron \textbf{10,734 muestras válidas}. La que maximiza el score de balance (qué tan bien refleja la distribución del pool) obtuvo un score de \textbf{0.7667}, incluyendo los cuatro programas:
+
+\begin{center}
+\begin{tabular}{cll}
+  \toprule
+  \textbf{ID} & \textbf{Programa} & \textbf{Ciudad} \\
+  \midrule
+  1 & Computación & Manizales \\
+  2 & Matemáticas & Pereira \\
+  3 & Estadística & Armenia \\
+  4 & Computación & Manizales \\
+  5 & Matemáticas & Pereira \\
+  7 & \textbf{Física}       & Manizales \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+La diferencia con la primera solución es que incluye a Física en lugar del estudiante 6 (Estadística).
+
+% =============================================================================
+\section{Resumen de decisiones de diseño}
+% =============================================================================
+
+\begin{center}
+\begin{tabular}{p{4cm}p{4.5cm}p{5cm}}
+  \toprule
+  \textbf{Decisión} & \textbf{Alternativa descartada} & \textbf{Razón} \\
+  \midrule
+  Diccionarios para estudiantes & Listas con índices numéricos & Más legible: \texttt{e["programa"]} vs. \texttt{e[0]} \\
+  Índice creciente de candidatos & Conjunto de IDs visitados & Evita duplicados sin memoria extra \\
+  Mínimos en \texttt{puede\_podar()} & Mínimos en \texttt{es\_valido()} & Los mínimos requieren ver candidatos futuros \\
+  Poda global de ciudades & Sin poda global & Sin ella, C3 tardaba 8,380 llamadas \\
+  \texttt{limite} como parámetro & Parar siempre en la primera & Permite buscar todas las soluciones en la extensión \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}

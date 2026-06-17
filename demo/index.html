@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Muestra Inteligente — Demo Interactiva</title>
+  <style>
+    /* ─── Reset y base ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+      min-height: 100vh;
+    }
+
+    /* ─── Header ────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #006847 0%, #004d34 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; }
+    header p  { font-size: 0.85rem; opacity: 0.85; margin-top: 0.25rem; }
+    .badge {
+      display: inline-block;
+      background: #FDD000;
+      color: #1a1a1a;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      margin-top: 0.4rem;
+    }
+
+    /* ─── Layout ────────────────────────────────────────── */
+    main {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.25rem;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 1.25rem;
+    }
+
+    /* ─── Panel de control ───────────────────────────────── */
+    .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 1.4rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+    .panel h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #006847;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .quota-group { margin-bottom: 1rem; }
+    .quota-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.3rem;
+    }
+    .quota-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+    .quota-row span { font-size: 0.75rem; color: #718096; min-width: 120px; }
+    input[type="number"] {
+      width: 58px;
+      padding: 0.25rem 0.4rem;
+      border: 1.5px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      text-align: center;
+      color: #2d3748;
+    }
+    input[type="number"]:focus { border-color: #006847; outline: none; }
+
+    .preset-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+    .preset-btn {
+      font-size: 0.72rem;
+      padding: 0.3rem 0.7rem;
+      border: 1.5px solid #006847;
+      background: white;
+      color: #006847;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      background: #006847;
+      color: white;
+    }
+
+    .run-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #006847, #004d34);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.15s;
+      margin-top: 0.5rem;
+    }
+    .run-btn:hover   { opacity: 0.92; }
+    .run-btn:active  { transform: scale(0.98); }
+    .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Resultado principal ────────────────────────────── */
+    .results { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      border-top: 3px solid #006847;
+    }
+    .stat-card.error  { border-top-color: #e53e3e; }
+    .stat-card.warn   { border-top-color: #dd6b20; }
+    .stat-card.accent { border-top-color: #FDD000; }
+    .stat-value { font-size: 1.8rem; font-weight: 800; color: #006847; }
+    .stat-card.error .stat-value  { color: #e53e3e; }
+    .stat-card.warn  .stat-value  { color: #dd6b20; }
+    .stat-card.accent .stat-value { color: #b7791f; }
+    .stat-label { font-size: 0.72rem; color: #718096; margin-top: 0.25rem; }
+
+    /* ─── Tablas ─────────────────────────────────────────── */
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      padding: 1.4rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      overflow-x: auto;
+    }
+    .table-container h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 0.85rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    thead { background: #006847; color: white; }
+    th { padding: 0.55rem 0.75rem; text-align: left; font-weight: 600; }
+    td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #edf2f7; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #f7fafc; }
+    tbody tr.selected { background: #e6ffed; }
+
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+    .tag-comp { background: #ebf8ff; color: #2b6cb0; }
+    .tag-mat  { background: #f0fff4; color: #276749; }
+    .tag-est  { background: #fff5f5; color: #9b2c2c; }
+    .tag-fis  { background: #fffaf0; color: #7b341e; }
+    .tag-noct { background: #1a202c; color: #e2e8f0; }
+    .tag-diur { background: #fefce8; color: #92400e; }
+
+    /* ─── Árbol de backtracking ───────────────────────────── */
+    .trace-box {
+      background: white;
+      border-radius: 12px;
+      padding: 1.4rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    }
+    .trace-box h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.85rem;
+    }
+    #trace-log {
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      line-height: 1.7;
+      color: #2d3748;
+      max-height: 240px;
+      overflow-y: auto;
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 0.85rem;
+      border: 1px solid #e2e8f0;
+    }
+    .log-sol   { color: #006847; font-weight: 700; }
+    .log-poda  { color: #e53e3e; }
+    .log-call  { color: #4299e1; }
+
+    /* ─── Gráfico de barras ───────────────────────────────── */
+    .chart-section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.4rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    }
+    .chart-section h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.85rem;
+    }
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    canvas { max-height: 160px; }
+
+    /* ─── Mensaje de error ────────────────────────────────── */
+    .no-solution {
+      background: #fff5f5;
+      border: 1.5px solid #fc8181;
+      border-radius: 10px;
+      padding: 1.2rem;
+      color: #c53030;
+      font-size: 0.85rem;
+    }
+    .no-solution strong { display: block; font-size: 1rem; margin-bottom: 0.35rem; }
+
+    /* ─── Estado vacío ────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      color: #a0aec0;
+      padding: 3rem 1rem;
+      font-size: 0.9rem;
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+    /* ─── Responsive ─────────────────────────────────────── */
+    @media (max-width: 768px) {
+      main { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Muestra Inteligente</h1>
+  <p>Proyecto 4 — Introducción a Ciencias de la Computación · UNAL Manizales</p>
+  <span class="badge">Backtracking aplicado a Ciencia de Datos</span>
+</header>
+
+<main>
+  <!-- ─── Panel de control ─────────────────────────────── -->
+  <aside class="panel">
+    <h2>Configurar cuotas</h2>
+
+    <div class="preset-buttons">
+      <button class="preset-btn active" onclick="cargarPreset(1)">C1 Base</button>
+      <button class="preset-btn" onclick="cargarPreset(2)">C2 Diversidad</button>
+      <button class="preset-btn" onclick="cargarPreset(3)">C3 Sin solución</button>
+    </div>
+
+    <div class="quota-group">
+      <label>Tamaño de la muestra</label>
+      <div class="quota-row">
+        <span>Estudiantes a elegir</span>
+        <input type="number" id="q-tamano" min="1" max="20" value="6" />
+      </div>
+    </div>
+
+    <div class="quota-group">
+      <label>Mínimos por programa</label>
+      <div class="quota-row">
+        <span>Computación (mín)</span>
+        <input type="number" id="q-comp" min="0" max="6" value="2" />
+      </div>
+      <div class="quota-row">
+        <span>Matemáticas (mín)</span>
+        <input type="number" id="q-mat" min="0" max="5" value="1" />
+      </div>
+      <div class="quota-row">
+        <span>Estadística (mín)</span>
+        <input type="number" id="q-est" min="0" max="5" value="0" />
+      </div>
+    </div>
+
+    <div class="quota-group">
+      <label>Restricción de ciudad</label>
+      <div class="quota-row">
+        <span>Máx por ciudad</span>
+        <input type="number" id="q-ciudad" min="1" max="7" value="3" />
+      </div>
+    </div>
+
+    <div class="quota-group">
+      <label>Otras restricciones</label>
+      <div class="quota-row">
+        <span>Mín semestre 1</span>
+        <input type="number" id="q-sem1" min="0" max="6" value="2" />
+      </div>
+      <div class="quota-row">
+        <span>Mín jornada Noct.</span>
+        <input type="number" id="q-noct" min="0" max="8" value="0" />
+      </div>
+    </div>
+
+    <button class="run-btn" onclick="ejecutar()">Ejecutar backtracking</button>
+
+    <div style="margin-top:1rem; font-size:0.72rem; color:#718096; line-height:1.5">
+      <strong>Pool:</strong> 20 estudiantes sintéticos<br/>
+      Programas: Comp.(6) Mat.(5) Est.(5) Fís.(4)<br/>
+      Ciudades: Manizales(7) Pereira(6) Armenia(7)<br/>
+      Jornada: Diurna(12) Nocturna(8)
+    </div>
+  </aside>
+
+  <!-- ─── Panel de resultados ──────────────────────────── -->
+  <section class="results">
+
+    <!-- Estadísticas -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="s-llamadas">—</div>
+        <div class="stat-label">Llamadas recursivas</div>
+      </div>
+      <div class="stat-card warn" id="sc-podas">
+        <div class="stat-value" id="s-podas">—</div>
+        <div class="stat-label">Ramas podadas</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-value" id="s-sol">—</div>
+        <div class="stat-label">¿Solución?</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="s-balance">—</div>
+        <div class="stat-label">Score de balance</div>
+      </div>
+    </div>
+
+    <!-- Muestra encontrada -->
+    <div class="table-container" id="result-table">
+      <div class="empty-state">
+        <div class="icon">🔍</div>
+        Configura las cuotas y presiona <strong>Ejecutar</strong>
+      </div>
+    </div>
+
+    <!-- Gráficas comparativas -->
+    <div class="chart-section" id="chart-section" style="display:none">
+      <h3>Distribución: Pool original vs. Muestra seleccionada</h3>
+      <div class="charts-row">
+        <canvas id="chart-prog"></canvas>
+        <canvas id="chart-ciudad"></canvas>
+        <canvas id="chart-jornada"></canvas>
+      </div>
+    </div>
+
+    <!-- Traza del algoritmo -->
+    <div class="trace-box">
+      <h3>Traza del algoritmo</h3>
+      <div id="trace-log"><span style="color:#a0aec0">Esperando ejecución…</span></div>
+    </div>
+
+  </section>
+</main>
+
+<script>
+// =============================================================================
+// DATASET (igual al notebook Python)
+// =============================================================================
+const POOL = [
+  {id:1,  prog:"Computacion",  sem:1, ciudad:"Manizales", jornada:"Diurna"  },
+  {id:2,  prog:"Matematicas",  sem:1, ciudad:"Pereira",   jornada:"Diurna"  },
+  {id:3,  prog:"Estadistica",  sem:2, ciudad:"Armenia",   jornada:"Nocturna"},
+  {id:4,  prog:"Computacion",  sem:2, ciudad:"Manizales", jornada:"Diurna"  },
+  {id:5,  prog:"Matematicas",  sem:3, ciudad:"Pereira",   jornada:"Nocturna"},
+  {id:6,  prog:"Estadistica",  sem:1, ciudad:"Armenia",   jornada:"Diurna"  },
+  {id:7,  prog:"Fisica",       sem:3, ciudad:"Manizales", jornada:"Diurna"  },
+  {id:8,  prog:"Computacion",  sem:1, ciudad:"Pereira",   jornada:"Nocturna"},
+  {id:9,  prog:"Matematicas",  sem:4, ciudad:"Manizales", jornada:"Diurna"  },
+  {id:10, prog:"Estadistica",  sem:2, ciudad:"Pereira",   jornada:"Diurna"  },
+  {id:11, prog:"Computacion",  sem:3, ciudad:"Armenia",   jornada:"Nocturna"},
+  {id:12, prog:"Fisica",       sem:1, ciudad:"Manizales", jornada:"Diurna"  },
+  {id:13, prog:"Matematicas",  sem:2, ciudad:"Armenia",   jornada:"Nocturna"},
+  {id:14, prog:"Computacion",  sem:4, ciudad:"Pereira",   jornada:"Diurna"  },
+  {id:15, prog:"Estadistica",  sem:3, ciudad:"Manizales", jornada:"Nocturna"},
+  {id:16, prog:"Fisica",       sem:2, ciudad:"Armenia",   jornada:"Diurna"  },
+  {id:17, prog:"Computacion",  sem:1, ciudad:"Armenia",   jornada:"Diurna"  },
+  {id:18, prog:"Matematicas",  sem:5, ciudad:"Pereira",   jornada:"Nocturna"},
+  {id:19, prog:"Estadistica",  sem:4, ciudad:"Manizales", jornada:"Diurna"  },
+  {id:20, prog:"Fisica",       sem:5, ciudad:"Armenia",   jornada:"Nocturna"},
+];
+
+// =============================================================================
+// PRESETS
+// =============================================================================
+const PRESETS = {
+  1: { tamano:6, comp:2, mat:1, est:0, ciudad:3, sem1:2, noct:0 },
+  2: { tamano:6, comp:2, mat:1, est:1, ciudad:3, sem1:1, noct:2 },
+  3: { tamano:7, comp:2, mat:1, est:0, ciudad:2, sem1:2, noct:0 },
+};
+
+function cargarPreset(n) {
+  const p = PRESETS[n];
+  document.getElementById('q-tamano').value = p.tamano;
+  document.getElementById('q-comp').value   = p.comp;
+  document.getElementById('q-mat').value    = p.mat;
+  document.getElementById('q-est').value    = p.est;
+  document.getElementById('q-ciudad').value = p.ciudad;
+  document.getElementById('q-sem1').value   = p.sem1;
+  document.getElementById('q-noct').value   = p.noct;
+  document.querySelectorAll('.preset-btn').forEach((b,i) =>
+    b.classList.toggle('active', i + 1 === n));
+}
+
+// =============================================================================
+// BACKTRACKING (traducción directa del Python)
+// =============================================================================
+
+function conteos(muestra) {
+  const prog   = {};
+  const ciudad = {};
+  const jorn   = {};
+  let sem1 = 0;
+  for (const e of muestra) {
+    prog[e.prog]     = (prog[e.prog]     || 0) + 1;
+    ciudad[e.ciudad] = (ciudad[e.ciudad] || 0) + 1;
+    jorn[e.jornada]  = (jorn[e.jornada]  || 0) + 1;
+    if (e.sem === 1) sem1++;
+  }
+  return { prog, ciudad, jorn, sem1 };
+}
+
+function candidatosValidos(restantes, muestra, cuotas) {
+  const { ciudad } = conteos(muestra);
+  return restantes.filter(e => (ciudad[e.ciudad] || 0) < cuotas.ciudad);
+}
+
+function esSolucionCompleta(muestra, cuotas) {
+  if (muestra.length !== cuotas.tamano) return false;
+  const { prog, jorn, sem1 } = conteos(muestra);
+  if ((prog['Computacion'] || 0) < cuotas.comp) return false;
+  if ((prog['Matematicas'] || 0) < cuotas.mat)  return false;
+  if ((prog['Estadistica'] || 0) < cuotas.est)  return false;
+  if (sem1 < cuotas.sem1) return false;
+  if ((jorn['Nocturna'] || 0) < cuotas.noct) return false;
+  return true;
+}
+
+function esValido(muestra, candidato, cuotas) {
+  const { ciudad } = conteos(muestra);
+  return (ciudad[candidato.ciudad] || 0) < cuotas.ciudad;
+}
+
+function puedePodar(muestra, restantes, cuotas) {
+  const faltantes = cuotas.tamano - muestra.length;
+  const { prog, ciudad, jorn, sem1 } = conteos(muestra);
+
+  // Poda global de ciudades
+  const todasCiudades = new Set([
+    ...Object.keys(ciudad),
+    ...restantes.map(e => e.ciudad),
+  ]);
+  const capacidad = [...todasCiudades].reduce((acc, c) =>
+    acc + Math.max(0, cuotas.ciudad - (ciudad[c] || 0)), 0);
+  if (capacidad < faltantes) return true;
+
+  const efectivos = candidatosValidos(restantes, muestra, cuotas);
+  if (efectivos.length < faltantes) return true;
+
+  // Poda por mínimos de programa
+  const checkProg = (key, minimo, current) => {
+    const disp = efectivos.filter(e => e.prog === key).length;
+    return (current || 0) + disp < minimo;
+  };
+  if (checkProg('Computacion', cuotas.comp, prog['Computacion'])) return true;
+  if (checkProg('Matematicas', cuotas.mat,  prog['Matematicas'])) return true;
+  if (checkProg('Estadistica', cuotas.est,  prog['Estadistica'])) return true;
+
+  // Poda semestre 1
+  const dispSem1 = efectivos.filter(e => e.sem === 1).length;
+  if (sem1 + dispSem1 < cuotas.sem1) return true;
+
+  // Poda nocturna
+  const dispNoct = efectivos.filter(e => e.jornada === 'Nocturna').length;
+  if ((jorn['Nocturna'] || 0) + dispNoct < cuotas.noct) return true;
+
+  return false;
+}
+
+let traceLines = [];
+const MAX_TRACE = 80;
+
+function backtracking(muestra, cuotas, soluciones, contadores, inicio) {
+  contadores.llamadas++;
+
+  const indent = '  '.repeat(muestra.length);
+
+  if (esSolucionCompleta(muestra, cuotas)) {
+    soluciones.push([...muestra]);
+    if (traceLines.length < MAX_TRACE)
+      traceLines.push(`<span class="log-sol">${indent}SOLUCION: [${muestra.map(e=>e.id).join(',')}]</span>`);
+    return;
+  }
+  if (soluciones.length >= 1) return;
+
+  const restantes = POOL.slice(inicio);
+
+  if (puedePodar(muestra, restantes, cuotas)) {
+    contadores.podas++;
+    if (traceLines.length < MAX_TRACE && muestra.length <= 3)
+      traceLines.push(`<span class="log-poda">${indent}PODA en [${muestra.map(e=>e.id).join(',')}]</span>`);
+    return;
+  }
+  if (muestra.length >= cuotas.tamano) return;
+
+  for (let i = 0; i < restantes.length; i++) {
+    if (soluciones.length >= 1) return;
+    const cand = restantes[i];
+    if (esValido(muestra, cand, cuotas)) {
+      if (traceLines.length < MAX_TRACE && muestra.length <= 3)
+        traceLines.push(`<span class="log-call">${indent}→ agregar E${cand.id}(${cand.prog.slice(0,4)})</span>`);
+      muestra.push(cand);
+      backtracking(muestra, cuotas, soluciones, contadores, inicio + i + 1);
+      muestra.pop();
+    } else {
+      contadores.podas++;
+    }
+  }
+}
+
+// =============================================================================
+// GRÁFICAS (sin librería externa)
+// =============================================================================
+
+let charts = {};
+
+function dibujarBarras(canvasId, labels, poolVals, muestraVals, titulo) {
+  if (charts[canvasId]) charts[canvasId].destroy();
+
+  const canvas = document.getElementById(canvasId);
+  const ctx    = canvas.getContext('2d');
+
+  // Simple Chart manual
+  const barW = 22, gap = 6, groupGap = 18, padL = 45, padB = 50, padT = 28, padR = 10;
+  const n = labels.length;
+  const w = padL + n * (barW * 2 + gap + groupGap) + padR;
+  const h = 210;
+  canvas.width  = w;
+  canvas.height = h;
+
+  const maxVal = Math.max(...poolVals, ...muestraVals, 1);
+  const chartH = h - padB - padT;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.font = '11px Segoe UI, sans-serif';
+
+  // Title
+  ctx.fillStyle = '#2d3748';
+  ctx.textAlign = 'center';
+  ctx.fillText(titulo, w / 2, 16);
+
+  // Grid lines
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + chartH * (1 - i / 4);
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+    ctx.fillStyle = '#a0aec0';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxVal * i / 4), padL - 4, y + 4);
+  }
+
+  labels.forEach((lbl, idx) => {
+    const baseX = padL + idx * (barW * 2 + gap + groupGap) + groupGap / 2;
+
+    // Pool bar
+    const hPool = (poolVals[idx] / maxVal) * chartH;
+    ctx.fillStyle = 'rgba(0,104,71,0.75)';
+    ctx.fillRect(baseX, padT + chartH - hPool, barW, hPool);
+    ctx.fillStyle = '#006847';
+    ctx.textAlign = 'center';
+    ctx.fillText(poolVals[idx], baseX + barW / 2, padT + chartH - hPool - 3);
+
+    // Muestra bar
+    const hMuestra = (muestraVals[idx] / maxVal) * chartH;
+    ctx.fillStyle = 'rgba(253,208,0,0.85)';
+    ctx.fillRect(baseX + barW + gap, padT + chartH - hMuestra, barW, hMuestra);
+    ctx.fillStyle = '#b7791f';
+    ctx.fillText(muestraVals[idx], baseX + barW + gap + barW / 2, padT + chartH - hMuestra - 3);
+
+    // Label
+    ctx.fillStyle = '#4a5568';
+    ctx.fillText(lbl.length > 6 ? lbl.slice(0,6) : lbl, baseX + barW + gap / 2, h - 22);
+  });
+
+  // Legend
+  ctx.fillStyle = 'rgba(0,104,71,0.75)';
+  ctx.fillRect(padL, h - 14, 10, 10);
+  ctx.fillStyle = '#4a5568';
+  ctx.textAlign = 'left';
+  ctx.fillText('Pool', padL + 13, h - 5);
+
+  ctx.fillStyle = 'rgba(253,208,0,0.85)';
+  ctx.fillRect(padL + 55, h - 14, 10, 10);
+  ctx.fillStyle = '#4a5568';
+  ctx.fillText('Muestra', padL + 68, h - 5);
+
+  charts[canvasId] = { destroy: () => {} };
+}
+
+function contar(lista, campo) {
+  const c = {};
+  lista.forEach(e => { c[e[campo]] = (c[e[campo]] || 0) + 1; });
+  return c;
+}
+
+function renderCharts(muestra) {
+  document.getElementById('chart-section').style.display = '';
+
+  // Programa
+  const progs = ['Computacion','Matematicas','Estadistica','Fisica'];
+  const cpPool = contar(POOL, 'prog');
+  const cpMues = contar(muestra, 'prog');
+  dibujarBarras('chart-prog', progs.map(p=>p.slice(0,4)),
+    progs.map(p => cpPool[p]||0), progs.map(p => cpMues[p]||0), 'Por programa');
+
+  // Ciudad
+  const ciudades = ['Manizales','Pereira','Armenia'];
+  const ccPool = contar(POOL, 'ciudad');
+  const ccMues = contar(muestra, 'ciudad');
+  dibujarBarras('chart-ciudad', ciudades.map(c=>c.slice(0,5)),
+    ciudades.map(c => ccPool[c]||0), ciudades.map(c => ccMues[c]||0), 'Por ciudad');
+
+  // Jornada
+  const jornadas = ['Diurna','Nocturna'];
+  const cjPool = contar(POOL, 'jornada');
+  const cjMues = contar(muestra, 'jornada');
+  dibujarBarras('chart-jornada', jornadas.map(j=>j.slice(0,4)),
+    jornadas.map(j => cjPool[j]||0), jornadas.map(j => cjMues[j]||0), 'Por jornada');
+}
+
+// =============================================================================
+// SCORE DE BALANCE
+// =============================================================================
+
+function scoreBalance(muestra) {
+  if (!muestra.length) return 0;
+  const progs = ['Computacion','Matematicas','Estadistica','Fisica'];
+  const pPool = contar(POOL, 'prog');
+  const pMues = contar(muestra, 'prog');
+  let diff = 0;
+  progs.forEach(p => {
+    diff += Math.abs((pPool[p]||0)/POOL.length - (pMues[p]||0)/muestra.length);
+  });
+  return Math.max(0, 1 - diff).toFixed(4);
+}
+
+// =============================================================================
+// EJECUTAR
+// =============================================================================
+
+function ejecutar() {
+  const cuotas = {
+    tamano : parseInt(document.getElementById('q-tamano').value) || 6,
+    comp   : parseInt(document.getElementById('q-comp').value)   || 0,
+    mat    : parseInt(document.getElementById('q-mat').value)    || 0,
+    est    : parseInt(document.getElementById('q-est').value)    || 0,
+    ciudad : parseInt(document.getElementById('q-ciudad').value) || 3,
+    sem1   : parseInt(document.getElementById('q-sem1').value)   || 0,
+    noct   : parseInt(document.getElementById('q-noct').value)   || 0,
+  };
+
+  const soluciones = [];
+  const contadores = { llamadas: 0, podas: 0 };
+  traceLines = [];
+
+  backtracking([], cuotas, soluciones, contadores, 0);
+
+  // Estadísticas
+  document.getElementById('s-llamadas').textContent = contadores.llamadas;
+  document.getElementById('s-podas').textContent    = contadores.podas;
+
+  if (soluciones.length > 0) {
+    const sol = soluciones[0];
+    document.getElementById('s-sol').textContent     = 'Sí ✓';
+    document.getElementById('s-balance').textContent = scoreBalance(sol);
+
+    // Tabla de muestra
+    document.getElementById('result-table').innerHTML = `
+      <h3>Muestra seleccionada (${sol.length} estudiantes)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Programa</th><th>Semestre</th><th>Ciudad</th><th>Jornada</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sol.map(e => `
+            <tr class="selected">
+              <td>${e.id}</td>
+              <td><span class="tag tag-${e.prog.slice(0,4).toLowerCase()}">${e.prog}</span></td>
+              <td>${e.sem}</td>
+              <td>${e.ciudad}</td>
+              <td><span class="tag ${e.jornada==='Nocturna'?'tag-noct':'tag-diur'}">${e.jornada}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+    renderCharts(sol);
+  } else {
+    document.getElementById('s-sol').textContent     = 'No ✗';
+    document.getElementById('s-balance').textContent = '—';
+    document.getElementById('result-table').innerHTML = `
+      <div class="no-solution">
+        <strong>No se encontró solución</strong>
+        Las cuotas son incompatibles con el pool disponible.<br/>
+        <strong>Motivo probable:</strong> max_por_ciudad (${cuotas.ciudad}) × 3 ciudades = ${cuotas.ciudad*3}
+        ${cuotas.ciudad*3 < cuotas.tamano ? '< ' + cuotas.tamano + ' requeridos → <b>imposible</b>' : '≥ ' + cuotas.tamano + ' (revisar mínimos de programa)'}
+      </div>
+    `;
+    document.getElementById('chart-section').style.display = 'none';
+  }
+
+  // Traza
+  if (traceLines.length === 0) traceLines.push('<span class="log-poda">Poda en raíz — imposible completar</span>');
+  if (contadores.llamadas > MAX_TRACE)
+    traceLines.push(`<span style="color:#a0aec0">… (mostrando ${Math.min(traceLines.length,MAX_TRACE)} de ${contadores.llamadas} llamadas)</span>`);
+  document.getElementById('trace-log').innerHTML = traceLines.join('\n');
+}
+
+// Cargar preset inicial
+cargarPreset(1);
+</script>
+</body>
+</html>

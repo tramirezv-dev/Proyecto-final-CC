@@ -1,0 +1,790 @@
+% =============================================================================
+% INFORME — PROYECTO 4: MUESTRA INTELIGENTE
+% Universidad Nacional de Colombia — Sede Manizales
+% Introducción a las Ciencias de la Computación
+% Profesor: Carlos Manuel Orrego Franco
+% Compilar con pdfLaTeX (Overleaf recomendado)
+% =============================================================================
+
+\documentclass[12pt, a4paper]{article}
+
+% ── Paquetes ──────────────────────────────────────────────────────────────────
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{colortbl}
+\usepackage{setspace}
+\usepackage{tikz}
+\usetikzlibrary{trees, positioning, arrows.meta, shapes.geometric}
+
+% ── Colores UNAL ──────────────────────────────────────────────────────────────
+\definecolor{unalverde}{HTML}{006847}
+\definecolor{unalamarillo}{HTML}{FDD000}
+\definecolor{accentazul}{HTML}{1F4E79}
+\definecolor{grisneutro}{HTML}{F5F5F5}
+\definecolor{codebg}{HTML}{F7FAFC}
+
+% ── Hipervínculos ─────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=unalverde,
+  urlcolor=accentazul,
+  citecolor=accentazul,
+}
+
+% ── Encabezado y pie de página ────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{unalverde}{\textbf{Muestra Inteligente}} — Proyecto 4}
+\fancyhead[R]{\small UNAL Manizales}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Títulos de sección con color ──────────────────────────────────────────────
+\titleformat{\section}
+  {\large\bfseries\color{unalverde}}{\thesection.}{0.5em}{}[\titlerule]
+\titleformat{\subsection}
+  {\normalsize\bfseries\color{accentazul}}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{gray}}{\thesubsubsection.}{0.5em}{}
+
+% ── Estilo de código Python ───────────────────────────────────────────────────
+\lstdefinestyle{python}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{accentazul}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{unalverde!80!black},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  framerule=0.5pt,
+  rulecolor=\color{unalverde!40},
+  backgroundcolor=\color{codebg},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+  xleftmargin=12pt,
+  tabsize=4,
+}
+
+% ── Caja de definición ────────────────────────────────────────────────────────
+\tcbuselibrary{skins, breakable}
+\newtcolorbox{definicion}[1]{
+  colback=unalverde!8,
+  colframe=unalverde,
+  fonttitle=\bfseries\small,
+  title=#1,
+  breakable,
+}
+\newtcolorbox{resultado}{
+  colback=accentazul!8,
+  colframe=accentazul,
+  fonttitle=\bfseries\small,
+  breakable,
+}
+
+% =============================================================================
+\begin{document}
+% =============================================================================
+
+% ── Portada ───────────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+
+  \vspace*{1cm}
+
+  {\color{unalverde}\rule{\linewidth}{2pt}}
+  \vspace{0.4cm}
+
+  {\LARGE\bfseries\color{unalverde} Universidad Nacional de Colombia}\\[0.3cm]
+  {\large Sede Manizales}\\[0.2cm]
+  {\normalsize Facultad de Ciencias Exactas y Naturales}\\[0.2cm]
+  {\normalsize Introducción a las Ciencias de la Computación}
+
+  \vspace{0.6cm}
+  {\color{unalverde}\rule{\linewidth}{1pt}}
+
+  \vspace{1.2cm}
+
+  {\Huge\bfseries Muestra Inteligente}\\[0.4cm]
+  {\Large Una Encuesta Pequeña pero Equilibrada}\\[0.6cm]
+  {\large\itshape Backtracking aplicado a la selección de muestras representativas}
+
+  \vspace{1.4cm}
+
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Integrante}    & \textbf{Rol} \\
+    \midrule
+    Sebastián Gutiérrez    & Algoritmo backtracking \\
+    Mateo Bernal           & Dataset y análisis \\
+    Thomas Ramírez         & Presentación e informe \\
+    \bottomrule
+  \end{tabular}
+
+  \vspace{1.4cm}
+
+  \begin{tabular}{rl}
+    \textbf{Profesor:}   & Carlos Manuel Orrego Franco \\
+    \textbf{Proyecto:}   & 4 — Trabajo Final \\
+    \textbf{Fecha:}      & 17 de junio de 2026 \\
+  \end{tabular}
+
+  \vspace{1.2cm}
+  {\color{unalverde}\rule{\linewidth}{2pt}}
+
+\end{titlepage}
+
+% ── Tabla de contenidos ───────────────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+% =============================================================================
+\section*{Resumen}
+\addcontentsline{toc}{section}{Resumen}
+% =============================================================================
+
+Este proyecto implementa un algoritmo de backtracking para seleccionar automáticamente una muestra representativa de estudiantes para una encuesta universitaria. El problema consiste en elegir 6 estudiantes de un pool de 20, respetando cuotas mínimas por programa académico, restricciones de ciudad y criterios de semestre y jornada. Se implementaron cinco funciones base del backtracking (\texttt{es\_solucion\_completa}, \texttt{obtener\_candidatos}, \texttt{es\_valido}, \texttt{puede\_podar} y \texttt{backtracking}), con cinco condiciones de poda anticipada. El algoritmo se probó con tres conjuntos de cuotas: uno base (solución en 7 llamadas), uno de alta diversidad (solución en 7 llamadas) y uno imposible (detectado en 1 sola llamada). Como extensión, se evaluaron las 10,734 muestras válidas del Conjunto 1 para encontrar la más equilibrada, con un score de balance de 0.7667. Los resultados muestran que la poda global de capacidad detecta imposibilidades sin explorar ninguna rama, y que el diseño es fácilmente extensible a nuevas restricciones.
+
+\newpage
+
+% =============================================================================
+\section{Introducción}
+% =============================================================================
+
+El presente informe documenta el Proyecto 4 de la asignatura Introducción a las Ciencias de la Computación. El proyecto aborda un problema práctico del contexto universitario: la selección automática de una muestra representativa de estudiantes para una encuesta piloto de Bienestar Universitario sobre hábitos de estudio.
+
+El desafío central consiste en elegir un subconjunto pequeño de estudiantes que no quede sesgado hacia un único programa académico, semestre o ciudad de procedencia. Esto se logra imponiendo restricciones de cuota: mínimos de representación por programa, máximos por ciudad y otras condiciones. La técnica algorítmica elegida es el \textbf{backtracking}, un paradigma de búsqueda sistemática que construye soluciones paso a paso, verificando restricciones en cada etapa y retrocediendo cuando una selección parcial no puede conducir a una solución válida.
+
+\subsection{Motivación}
+
+Sin restricciones, el número de formas de elegir 6 estudiantes de un pool de 20 es:
+\[
+  \binom{20}{6} = \frac{20!}{6! \cdot 14!} = 38{,}760
+\]
+Evaluar todas estas combinaciones a mano es inviable, especialmente cuando se añaden múltiples reglas que pueden entrar en conflicto entre sí. El backtracking resuelve este problema de forma eficiente descartando familias enteras de combinaciones (ramas del árbol de búsqueda) en cuanto detecta que ninguna de ellas puede satisfacer todas las restricciones.
+
+\subsection{Alcance del proyecto}
+
+El proyecto implementa un sistema completo que:
+\begin{itemize}[noitemsep]
+  \item Modela el problema de selección como backtracking con cinco funciones base.
+  \item Prueba tres conjuntos de cuotas distintos, incluyendo un caso imposible.
+  \item Genera visualizaciones comparativas de la distribución del pool frente a la muestra.
+  \item Encuentra la muestra más equilibrada entre todas las válidas (extensión opcional).
+  \item Ofrece una demo interactiva web que ejecuta el algoritmo en el navegador.
+\end{itemize}
+
+% =============================================================================
+\section{Objetivos}
+% =============================================================================
+
+\subsection{Objetivo general}
+
+Demostrar cómo el paradigma de backtracking puede construir automáticamente una muestra representativa de estudiantes, respetando un conjunto de restricciones de cuota, en un dataset sintético pequeño.
+
+\subsection{Objetivos específicos}
+
+\begin{enumerate}[noitemsep]
+  \item Modelar el problema de selección de muestra con la estructura formal de backtracking (solución parcial, candidatos, restricciones, poda).
+  \item Implementar el algoritmo en Python con poda anticipada eficiente.
+  \item Probar el algoritmo con tres conjuntos de cuotas que ilustren casos distintos: solución fácil, solución más restrictiva e imposibilidad demostrable.
+  \item Comparar visualmente la distribución del pool original con la muestra seleccionada mediante gráficas de barras.
+  \item Encontrar la muestra de mayor equilibrio estadístico entre todas las muestras válidas del Conjunto 1.
+\end{enumerate}
+
+% =============================================================================
+\section{Marco conceptual}
+% =============================================================================
+
+\subsection{Backtracking}
+
+El backtracking es una técnica de búsqueda exhaustiva que construye soluciones de forma incremental. En cada paso se añade un elemento a la solución parcial, se verifican las restricciones y, si alguna se viola o se detecta que la solución no puede completarse, se retrocede al paso anterior y se prueba otra opción.
+
+\begin{definicion}{Estructura general del backtracking}
+Todo algoritmo de backtracking se define mediante cinco componentes:
+\begin{itemize}[noitemsep]
+  \item \textbf{Solución parcial:} el estado construido hasta el momento.
+  \item \textbf{Candidatos:} los elementos que pueden incorporarse al siguiente paso.
+  \item \textbf{Restricciones:} reglas que determinan si un candidato puede añadirse (\texttt{es\_valido}) o si la solución parcial ya no puede completarse (\texttt{puede\_podar}).
+  \item \textbf{Condición de solución completa:} cuándo la solución parcial es válida y final.
+  \item \textbf{Retroceso:} deshacer la última elección cuando no se puede avanzar.
+\end{itemize}
+\end{definicion}
+
+\subsection{Poda}
+
+La eficiencia del backtracking depende de la calidad de la poda. Una poda detecta situaciones en las que completar la solución parcial es \emph{imposible}, sin necesidad de explorar todas las ramas. En este proyecto se implementan cinco condiciones de poda, descritas en la Sección~\ref{sec:implementacion}.
+
+\subsection{Muestra representativa}
+
+Una muestra es representativa cuando refleja la distribución de la población en las variables de interés. En este proyecto las variables son: programa académico, semestre, ciudad y jornada. Las cuotas garantizan que ninguna categoría quede excluida por completo de la muestra.
+
+% =============================================================================
+\section{Dataset}
+% =============================================================================
+
+\subsection{Descripción}
+
+Se utilizó un dataset sintético de \textbf{20 estudiantes}, diseñado para reflejar la diversidad de una facultad pequeña de la UNAL Manizales. Cada estudiante tiene cuatro atributos:
+
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  \textbf{Campo} & \textbf{Valores posibles} & \textbf{Tipo} \\
+  \midrule
+  \texttt{programa} & Computacion, Matematicas, Estadistica, Fisica & Categórico \\
+  \texttt{semestre} & 1, 2, 3, 4, 5 & Ordinal \\
+  \texttt{ciudad}   & Manizales, Pereira, Armenia & Categórico \\
+  \texttt{jornada}  & Diurna, Nocturna & Binario \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Distribución del pool}
+
+\begin{center}
+\begin{tabular}{lc|lc|lc}
+  \toprule
+  \textbf{Programa} & \textbf{N} & \textbf{Ciudad} & \textbf{N} & \textbf{Jornada} & \textbf{N} \\
+  \midrule
+  Computación  & 6 & Manizales & 7 & Diurna   & 12 \\
+  Matemáticas  & 5 & Pereira   & 6 & Nocturna &  8 \\
+  Estadística  & 5 & Armenia   & 7 & & \\
+  Física       & 4 & & & & \\
+  \midrule
+  \textbf{Total} & \textbf{20} & & \textbf{20} & & \textbf{20} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.4cm}
+
+El dataset completo se presenta a continuación:
+
+\begin{center}
+\small
+\begin{tabular}{cllcc}
+  \toprule
+  \textbf{ID} & \textbf{Programa} & \textbf{Ciudad} & \textbf{Semestre} & \textbf{Jornada} \\
+  \midrule
+   1 & Computación  & Manizales & 1 & Diurna   \\
+   2 & Matemáticas  & Pereira   & 1 & Diurna   \\
+   3 & Estadística  & Armenia   & 2 & Nocturna \\
+   4 & Computación  & Manizales & 2 & Diurna   \\
+   5 & Matemáticas  & Pereira   & 3 & Nocturna \\
+   6 & Estadística  & Armenia   & 1 & Diurna   \\
+   7 & Física       & Manizales & 3 & Diurna   \\
+   8 & Computación  & Pereira   & 1 & Nocturna \\
+   9 & Matemáticas  & Manizales & 4 & Diurna   \\
+  10 & Estadística  & Pereira   & 2 & Diurna   \\
+  11 & Computación  & Armenia   & 3 & Nocturna \\
+  12 & Física       & Manizales & 1 & Diurna   \\
+  13 & Matemáticas  & Armenia   & 2 & Nocturna \\
+  14 & Computación  & Pereira   & 4 & Diurna   \\
+  15 & Estadística  & Manizales & 3 & Nocturna \\
+  16 & Física       & Armenia   & 2 & Diurna   \\
+  17 & Computación  & Armenia   & 1 & Diurna   \\
+  18 & Matemáticas  & Pereira   & 5 & Nocturna \\
+  19 & Estadística  & Manizales & 4 & Diurna   \\
+  20 & Física       & Armenia   & 5 & Nocturna \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+% =============================================================================
+\section{Modelamiento del problema}
+% =============================================================================
+
+\subsection{Mapeo al paradigma de backtracking}
+
+El problema de selección de muestra se mapea al backtracking de la siguiente manera:
+
+\begin{center}
+\begin{tabular}{p{3.5cm}p{9cm}}
+  \toprule
+  \textbf{Componente} & \textbf{Definición en este proyecto} \\
+  \midrule
+  Solución parcial    & Lista de estudiantes ya seleccionados para la muestra. \\
+  Candidatos          & Estudiantes del pool con índice mayor al último seleccionado (orden creciente para evitar duplicados). \\
+  \texttt{es\_valido}        & Agregar el candidato no supera el máximo de estudiantes por ciudad. \\
+  \texttt{puede\_podar}      & Los candidatos restantes no alcanzan para cumplir alguna cuota mínima, o la capacidad global de ciudades es insuficiente. \\
+  Solución completa   & La muestra tiene exactamente el tamaño requerido y cumple todos los mínimos de programa, semestre y jornada. \\
+  Retroceso           & Se elimina el último estudiante añadido y se prueba el siguiente candidato. \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Índice creciente de candidatos}
+
+Un detalle de diseño clave es que los candidatos siempre se toman desde una posición \texttt{inicio} que avanza con cada elección. Esto garantiza que cada combinación de estudiantes se genere exactamente una vez, sin importar el orden en que se elegirían. De este modo se exploran como máximo $\binom{20}{6} = 38{,}760$ ramas, en lugar de los $20^6 \approx 64$ millones de secuencias ordenadas posibles.
+
+\subsection{Los tres conjuntos de cuotas}
+
+Se diseñaron tres conjuntos de restricciones para demostrar comportamientos distintos del algoritmo:
+
+\begin{center}
+\begin{tabular}{p{3.2cm}p{3.2cm}p{3.2cm}p{3.2cm}}
+  \toprule
+  \textbf{Restricción} & \textbf{C1 — Base} & \textbf{C2 — Diversidad} & \textbf{C3 — Sin sol.} \\
+  \midrule
+  Tamaño               & 6   & 6   & 7 \\
+  Mín. Computación     & 2   & 2   & 2 \\
+  Mín. Matemáticas     & 1   & 1   & 1 \\
+  Mín. Estadística     & 0   & 1   & 0 \\
+  Máx. por ciudad      & 3   & 3   & 2 \\
+  Mín. semestre 1      & 2   & 1   & 2 \\
+  Mín. Nocturna        & 0   & 2   & 0 \\
+  \midrule
+  \textbf{Resultado}   & Solución & Solución & \textbf{Imposible} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+El Conjunto 3 es imposible por construcción: con máximo 2 estudiantes por ciudad y 3 ciudades disponibles, solo se pueden elegir $3 \times 2 = 6$ estudiantes, pero se requieren 7. El algoritmo detecta esto en la primera llamada gracias a la poda global de capacidad.
+
+% =============================================================================
+\section{Implementación}
+\label{sec:implementacion}
+% =============================================================================
+
+\subsection{Función \texttt{es\_solucion\_completa}}
+
+Verifica si la muestra actual cumple todas las condiciones para ser una solución válida y final:
+
+\begin{lstlisting}[style=python, caption={Condición de solución completa}]
+def es_solucion_completa(muestra, cuotas):
+    if len(muestra) != cuotas["tamano"]:
+        return False
+
+    por_prog, _, por_jornada, sem1 = obtener_conteos(muestra)
+
+    for prog, minimo in cuotas["min_programa"].items():
+        if por_prog.get(prog, 0) < minimo:
+            return False
+
+    if sem1 < cuotas["min_semestre_1"]:
+        return False
+
+    if por_jornada.get("Nocturna", 0) < cuotas["min_nocturna"]:
+        return False
+
+    return True
+\end{lstlisting}
+
+\subsection{Función \texttt{es\_valido}}
+
+Verifica que agregar un candidato no supere la cuota máxima de estudiantes por ciudad:
+
+\begin{lstlisting}[style=python, caption={Restricción de validez (cuota máxima)}]
+def es_valido(muestra, candidato, cuotas):
+    max_c = cuotas.get("max_por_ciudad", float("inf"))
+    ya_en_ciudad = sum(1 for e in muestra
+                       if e["ciudad"] == candidato["ciudad"])
+    return ya_en_ciudad < max_c
+\end{lstlisting}
+
+\subsection{Función \texttt{puede\_podar}}
+
+Es la función más importante para la eficiencia. Detecta cinco situaciones en las que completar la muestra es imposible:
+
+\begin{lstlisting}[style=python, caption={Poda anticipada con cinco condiciones}]
+def puede_podar(muestra, pool_restante, cuotas):
+    faltantes = cuotas["tamano"] - len(muestra)
+    _, por_ciudad, _, _ = obtener_conteos(muestra)
+
+    # Condicion 0: capacidad global de ciudades insuficiente
+    max_c = cuotas.get("max_por_ciudad", float("inf"))
+    if max_c < float("inf"):
+        todas_ciudades = set(e["ciudad"] for e in pool_restante) \
+                         | set(por_ciudad)
+        capacidad = sum(max(0, max_c - por_ciudad.get(c, 0))
+                        for c in todas_ciudades)
+        if capacidad < faltantes:
+            return True   # imposible
+
+    efectivos = candidatos_validos(pool_restante, muestra, cuotas)
+
+    # Condicion 1: candidatos validos insuficientes
+    if len(efectivos) < faltantes:
+        return True
+
+    por_prog, _, por_jornada, sem1 = obtener_conteos(muestra)
+
+    # Condicion 2: minimo de programa inalcanzable
+    for prog, minimo in cuotas["min_programa"].items():
+        disp = sum(1 for e in efectivos if e["programa"] == prog)
+        if por_prog.get(prog, 0) + disp < minimo:
+            return True
+
+    # Condicion 3: minimo de semestre 1 inalcanzable
+    disp_sem1 = sum(1 for e in efectivos if e["semestre"] == 1)
+    if sem1 + disp_sem1 < cuotas["min_semestre_1"]:
+        return True
+
+    # Condicion 4: minimo de jornada nocturna inalcanzable
+    disp_noct = sum(1 for e in efectivos if e["jornada"] == "Nocturna")
+    if por_jornada.get("Nocturna", 0) + disp_noct < cuotas["min_nocturna"]:
+        return True
+
+    return False
+\end{lstlisting}
+
+\subsection{Función principal \texttt{backtracking}}
+
+Integra las funciones anteriores en el ciclo de búsqueda:
+
+\begin{lstlisting}[style=python, caption={Algoritmo principal de backtracking}]
+def backtracking(pool, muestra, cuotas, soluciones,
+                 contadores, inicio=0, limite=1):
+    contadores["llamadas"] += 1
+
+    if es_solucion_completa(muestra, cuotas):
+        soluciones.append(list(muestra))
+        return
+
+    if limite is not None and len(soluciones) >= limite:
+        return
+
+    pool_restante = obtener_candidatos(pool, inicio)
+
+    if puede_podar(muestra, pool_restante, cuotas):
+        contadores["podas"] += 1
+        return
+
+    if len(muestra) >= cuotas["tamano"]:
+        return
+
+    for i, candidato in enumerate(pool_restante):
+        if limite is not None and len(soluciones) >= limite:
+            return
+        if es_valido(muestra, candidato, cuotas):
+            muestra.append(candidato)           # ELEGIR
+            backtracking(pool, muestra, cuotas,
+                         soluciones, contadores,
+                         inicio + i + 1, limite)
+            muestra.pop()                       # RETROCEDER
+        else:
+            contadores["podas"] += 1
+\end{lstlisting}
+
+\subsection{Árbol de búsqueda (ejemplo didáctico)}
+
+Para ilustrar el funcionamiento, se ejecutó el algoritmo sobre un pool reducido de 5 estudiantes, eligiendo muestras de tamaño 3 con al menos 1 de Computación y máximo 2 por ciudad. El árbol resultante muestra 9 soluciones encontradas con 25 llamadas recursivas y 6 podas:
+
+\begin{center}
+\begin{tikzpicture}[
+  level distance=1.1cm,
+  sibling distance=2.8cm,
+  every node/.style={font=\tiny, draw, rounded corners, inner sep=2pt},
+  sol/.style={fill=unalverde!25, font=\tiny\bfseries},
+  poda/.style={fill=red!15, font=\tiny, draw=red!60},
+  edge from parent/.style={draw, -Stealth, thin},
+  scale=0.9, transform shape,
+]
+\node [fill=gray!15] {$\emptyset$}
+  child { node {E1-Comp-Mza}
+    child { node {E1,E2-Mat-Per}
+      child { node [sol] {E1,E2,E3 \checkmark} }
+      child { node [sol] {E1,E2,E4 \checkmark} }
+      child { node [sol] {E1,E2,E5 \checkmark} }
+    }
+    child { node {E1,E3-Est-Arm}
+      child { node [sol] {E1,E3,E4 \checkmark} }
+      child { node [sol] {E1,E3,E5 \checkmark} }
+    }
+    child { node {E1,E4-Comp-Mza}
+      child { node [sol] {E1,E4,E5 \checkmark} }
+    }
+  }
+  child { node {E2-Mat-Per}
+    child { node {E2,E3-Est-Arm}
+      child { node [sol] {E2,E3,E4 \checkmark} }
+      child [poda] { node [poda] {E2,E3,E5 -- poda} }
+    }
+    child { node [poda] {E2,E4-Comp-Mza} edge from parent [draw=red!50] }
+  }
+  child [poda] { node [poda] {E3 (sin Comp)} edge from parent [draw=red!50] };
+\end{tikzpicture}
+\end{center}
+
+Los nodos verdes son soluciones válidas; los rojos son ramas descartadas por la poda. Se observa que el nodo raíz que empieza con E3 (Estadística) se poda de inmediato porque ningún candidato posterior puede cubrir el mínimo de Computación.
+
+% =============================================================================
+\section{Resultados}
+% =============================================================================
+
+\subsection{Conjunto 1 — Base}
+
+\textbf{Muestra encontrada:}
+
+\begin{center}
+\begin{tabular}{cllcc}
+  \toprule
+  \textbf{ID} & \textbf{Programa} & \textbf{Ciudad} & \textbf{Semestre} & \textbf{Jornada} \\
+  \midrule
+  \rowcolor{unalverde!15} 1 & Computación & Manizales & 1 & Diurna   \\
+                           2 & Matemáticas & Pereira   & 1 & Diurna   \\
+                           3 & Estadística & Armenia   & 2 & Nocturna \\
+  \rowcolor{unalverde!15} 4 & Computación & Manizales & 2 & Diurna   \\
+                           5 & Matemáticas & Pereira   & 3 & Nocturna \\
+                           6 & Estadística & Armenia   & 1 & Diurna   \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Verificación de cuotas:}
+\begin{itemize}[noitemsep]
+  \item Computación: 2 $\geq$ 2 \checkmark
+  \item Matemáticas: 2 $\geq$ 1 \checkmark
+  \item Máximo por ciudad: Manizales=2, Pereira=2, Armenia=2 — ninguna supera 3 \checkmark
+  \item Semestre 1: 3 (IDs 1, 2, 6) $\geq$ 2 \checkmark
+\end{itemize}
+
+\subsection{Conjunto 2 — Alta diversidad}
+
+\textbf{Muestra encontrada:}
+
+\begin{center}
+\begin{tabular}{cllcc}
+  \toprule
+  \textbf{ID} & \textbf{Programa} & \textbf{Ciudad} & \textbf{Semestre} & \textbf{Jornada} \\
+  \midrule
+   1 & Computación & Manizales & 1 & Diurna   \\
+   2 & Matemáticas & Pereira   & 1 & Diurna   \\
+   3 & Estadística & Armenia   & 2 & Nocturna \\
+   4 & Computación & Manizales & 2 & Diurna   \\
+   5 & Matemáticas & Pereira   & 3 & Nocturna \\
+   6 & Estadística & Armenia   & 1 & Diurna   \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Verificación de cuotas:}
+\begin{itemize}[noitemsep]
+  \item Computación: 2 $\geq$ 2 \checkmark \quad Matemáticas: 2 $\geq$ 1 \checkmark \quad Estadística: 2 $\geq$ 1 \checkmark
+  \item Máximo por ciudad: ninguna supera 3 \checkmark
+  \item Semestre 1: 3 $\geq$ 1 \checkmark
+  \item Nocturna: 2 (IDs 3, 5) $\geq$ 2 \checkmark
+\end{itemize}
+
+\subsection{Conjunto 3 — Sin solución}
+
+El algoritmo no encontró ninguna muestra. La poda global de capacidad de ciudades detecta la imposibilidad en la primera llamada:
+
+\[
+  \text{capacidad máxima} = 3 \text{ ciudades} \times 2 \text{ est./ciudad} = 6 < 7 = \text{tamaño requerido}
+\]
+
+El algoritmo termina con exactamente \textbf{1 llamada recursiva} y \textbf{1 poda}, sin explorar ninguna rama.
+
+\subsection{Tabla resumen}
+
+\begin{center}
+\begin{tabular}{lcccc}
+  \toprule
+  \textbf{Conjunto} & \textbf{Tamaño} & \textbf{Llamadas rec.} & \textbf{Ramas podadas} & \textbf{Solución} \\
+  \midrule
+  C1 — Base              & 6 & 7  & 0  & Sí \\
+  C2 — Alta diversidad   & 6 & 7  & 0  & Sí \\
+  C3 — Sin solución      & 7 & \textbf{1}  & \textbf{1}  & \textbf{No} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\begin{resultado}
+\textbf{Dato clave:} El Conjunto 3 se resuelve en \textbf{1 sola llamada} gracias a la poda global de capacidad de ciudades. Esto muestra que el algoritmo detecta imposibilidades de forma inmediata, sin necesidad de explorar el árbol.
+\end{resultado}
+
+% =============================================================================
+\section{Extensión: muestra más equilibrada}
+% =============================================================================
+
+El backtracking con \texttt{limite=1} encuentra la primera muestra válida. Para encontrar la \emph{mejor}, se ejecutó con \texttt{limite=None} (sin límite) sobre el Conjunto 1, obteniendo todas las muestras válidas posibles.
+
+\subsection{Puntaje de balance}
+
+Para comparar muestras se definió una métrica de balance basada en qué tan bien la distribución por programa de la muestra refleja la del pool:
+
+\[
+  \text{balance}(M) = 1 - \sum_{p \in \text{programas}} \left|\frac{n_p^{M}}{|M|} - \frac{n_p^{\text{pool}}}{|\text{pool}|}\right|
+\]
+
+Donde $n_p^M$ es la cantidad de estudiantes del programa $p$ en la muestra $M$ y $n_p^{\text{pool}}$ es la cantidad en el pool completo. Un valor cercano a 1.0 indica que la muestra es muy representativa del pool.
+
+\subsection{Resultados de la extensión}
+
+\begin{center}
+\begin{tabular}{lc}
+  \toprule
+  \textbf{Métrica} & \textbf{Valor} \\
+  \midrule
+  Total de muestras válidas encontradas & 10{,}734 \\
+  Score de balance promedio             & 0.5600 \\
+  Score de balance mínimo              & $-$0.0700 \\
+  \textbf{Score de balance máximo (mejor muestra)} & \textbf{0.7667} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Mejor muestra (score = 0.7667):}
+
+\begin{center}
+\begin{tabular}{cllc}
+  \toprule
+  \textbf{ID} & \textbf{Programa} & \textbf{Ciudad} & \textbf{Semestre} \\
+  \midrule
+   1 & Computación & Manizales & 1 \\
+   2 & Matemáticas & Pereira   & 1 \\
+   3 & Estadística & Armenia   & 2 \\
+   4 & Computación & Manizales & 2 \\
+   5 & Matemáticas & Pereira   & 3 \\
+   7 & Física      & Manizales & 3 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Esta muestra incluye los \textbf{cuatro programas}: Computación (2), Matemáticas (2), Estadística (1) y Física (1), que es la distribución más cercana a la del pool original (6, 5, 5, 4).
+
+% =============================================================================
+\section{Análisis y discusión}
+% =============================================================================
+
+\subsection{Eficiencia del algoritmo}
+
+Los resultados muestran que el algoritmo es muy eficiente para este tamaño de problema. Los Conjuntos 1 y 2 se resuelven con apenas 7 llamadas recursivas, lo que contrasta con las 38,760 combinaciones que habría que evaluar sin poda.
+
+La razón es que la poda de mínimos es muy poderosa cuando las restricciones son relativamente estrictas respecto al pool: en cuanto se elige un candidato que agota la cuota de alguna ciudad o programa, una fracción grande del árbol de búsqueda queda descartada de inmediato.
+
+\subsection{Detección de imposibilidad}
+
+El Conjunto 3 ilustra la ventaja más vistosa del backtracking con poda global: detectar que un problema no tiene solución sin explorar ninguna rama. La Condición 0 de \texttt{puede\_podar} calcula la capacidad máxima de todas las ciudades antes de intentar cualquier selección. Cuando esta capacidad es menor que el tamaño requerido, el algoritmo termina en la primera llamada.
+
+\subsection{Muestra válida vs. muestra óptima}
+
+El backtracking básico (con \texttt{limite=1}) garantiza encontrar la primera muestra que satisface todas las restricciones, pero no necesariamente la más equilibrada. Evaluar todas las 10,734 muestras válidas del Conjunto 1 y seleccionar la de mayor balance requiere la extensión opcional. Esta distinción ilustra la diferencia entre un problema de \emph{satisfacción} (encontrar cualquier solución válida) y un problema de \emph{optimización} (encontrar la mejor).
+
+\subsection{Escalabilidad}
+
+A medida que crece el pool o el tamaño de muestra requerido, la poda se vuelve más importante:
+
+\begin{itemize}[noitemsep]
+  \item Con un pool de 1,000 estudiantes y muestra de 20, el espacio sin restricciones es $\binom{1000}{20} \approx 3.4 \times 10^{40}$. La poda reduce drásticamente este número.
+  \item Agregar nuevas restricciones solo requiere modificar \texttt{es\_valido()} o \texttt{puede\_podar()}, sin reescribir la lógica central de backtracking.
+\end{itemize}
+
+% =============================================================================
+\section{Conclusiones}
+% =============================================================================
+
+\begin{enumerate}[noitemsep, leftmargin=*]
+  \item \textbf{El backtracking modela naturalmente el problema de selección.} La construcción incremental de la muestra, el retroceso ante restricciones violadas y la poda anticipada son directamente aplicables a la selección de encuestados con cuotas.
+
+  \item \textbf{La poda es el motor de eficiencia.} Sin poda, el backtracking recorrería hasta 38,760 combinaciones para una muestra de 6 de 20. Con las cinco condiciones implementadas, los Conjuntos 1 y 2 se resuelven en 7 llamadas recursivas.
+
+  \item \textbf{La poda global detecta imposibilidades en la primera llamada.} El Conjunto 3 demuestra que cuando las restricciones de cuota máxima hacen el problema imposible, el algoritmo lo detecta antes de explorar cualquier rama, gracias a la condición de capacidad global de ciudades.
+
+  \item \textbf{Muestra válida y muestra óptima son conceptos distintos.} El algoritmo básico encuentra la primera solución válida. Encontrar la más equilibrada requiere explorar todas las soluciones y aplicar una métrica de comparación (score de balance).
+
+  \item \textbf{El diseño es extensible.} Añadir restricciones nuevas (por ejemplo, cuota mínima de Física o máximo de semestres avanzados) solo requiere modificar \texttt{es\_valido()} o \texttt{puede\_podar()}, sin alterar la estructura del algoritmo.
+\end{enumerate}
+
+% =============================================================================
+\section{Decisiones del grupo}
+% =============================================================================
+
+\subsection*{¿Qué representación eligieron y por qué?}
+Representamos cada estudiante como un diccionario Python con cuatro campos (\texttt{programa}, \texttt{semestre}, \texttt{ciudad}, \texttt{jornada}). Elegimos diccionarios porque permiten acceder a cada atributo por nombre, lo que hace el código más legible que usar índices en una lista. La muestra en construcción es una lista de estos diccionarios, que se modifica en el lugar (\emph{in-place}) para evitar copias innecesarias en cada llamada recursiva.
+
+\subsection*{¿Qué restricciones implementaron primero?}
+Implementamos primero \texttt{max\_por\_ciudad} como restricción de validez inmediata en \texttt{es\_valido()}, porque es la restricción más fácil de verificar candidato por candidato. Luego añadimos las cuotas mínimas de programa en \texttt{puede\_podar()}, porque esas solo pueden chequearse mirando al futuro (cuántos candidatos quedan disponibles). La condición 0 de poda global de ciudades fue la última en añadirse, al darnos cuenta de que el Conjunto 3 tardaba miles de llamadas sin ella.
+
+\subsection*{¿Qué bug encontraron durante el desarrollo?}
+El error más importante apareció al probar el Conjunto 3: el algoritmo tardaba 8,380 llamadas recursivas en concluir que no había solución, en lugar de detectarlo de inmediato. El problema era que \texttt{puede\_podar()} verificaba si había candidatos suficientes en general, pero no calculaba si la capacidad total de las ciudades alcanzaba para cubrir el tamaño requerido. Al agregar la Condición 0 (capacidad global = suma de cupos disponibles por ciudad), el Conjunto 3 se resuelve en 1 sola llamada.
+
+\subsection*{¿Qué caso de prueba falló inicialmente?}
+El Conjunto 3 con \texttt{max\_por\_ciudad=2} y \texttt{tamano=7}. La primera versión del algoritmo exploraba miles de ramas antes de confirmar la imposibilidad. Una vez añadida la poda global de capacidad, la detección ocurre antes de intentar cualquier selección.
+
+\subsection*{¿Qué poda implementaron?}
+Implementamos cinco condiciones de poda en \texttt{puede\_podar()}:
+\begin{enumerate}[noitemsep]
+  \item \textbf{Poda global de ciudades:} capacidad máxima de todas las ciudades $<$ estudiantes faltantes.
+  \item \textbf{Candidatos insuficientes:} candidatos válidos restantes $<$ estudiantes faltantes.
+  \item \textbf{Mínimo de programa inalcanzable:} estudiantes del programa en muestra + disponibles $<$ mínimo requerido.
+  \item \textbf{Mínimo de semestre 1 inalcanzable:} misma lógica para semestre 1.
+  \item \textbf{Mínimo nocturno inalcanzable:} misma lógica para jornada nocturna.
+\end{enumerate}
+
+\subsection*{¿Qué cambiarían si tuvieran más tiempo?}
+Agregaríamos una interfaz de entrada para que el usuario defina su propio dataset en lugar de usar el sintético. También implementaríamos una visualización animada del árbol de búsqueda para mostrar visualmente cómo avanza y retrocede el algoritmo durante la exposición.
+
+\subsection*{¿Qué parte hizo cada integrante?}
+\begin{itemize}[noitemsep]
+  \item \textbf{Sebastián Gutiérrez:} diseño e implementación del algoritmo de backtracking y las cinco condiciones de poda en \texttt{src/funciones.py} y \texttt{notebook/proyecto.py}.
+  \item \textbf{Mateo Bernal:} construcción del dataset sintético, análisis de distribuciones, generación de las gráficas comparativas y la extensión de búsqueda de muestra óptima.
+  \item \textbf{Thomas Ramírez:} presentación Beamer, informe escrito, demo interactiva web y organización del repositorio.
+\end{itemize}
+
+% =============================================================================
+\section*{Declaración de autoría y uso de herramientas}
+\addcontentsline{toc}{section}{Declaración de autoría y uso de herramientas}
+% =============================================================================
+
+Los integrantes del grupo declaramos que el trabajo presentado es de nuestra autoría. El código fue escrito, comprendido y probado por el equipo. Durante el desarrollo utilizamos las siguientes herramientas externas:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Python 3 / Google Colab:} entorno principal de desarrollo y ejecución.
+  \item \textbf{Pandas y Matplotlib:} librerías para manejo de datos y visualización.
+  \item \textbf{Overleaf (LaTeX):} para la redacción del informe y la presentación Beamer.
+  \item \textbf{Asistente de inteligencia artificial (Claude, Anthropic):} utilizado como apoyo en la estructuración del código, revisión de la lógica de poda y redacción del informe. Todo el contenido fue revisado, adaptado y comprendido por el grupo antes de incluirlo en la entrega.
+\end{itemize}
+
+Todos los integrantes somos capaces de explicar individualmente cualquier parte del código, las decisiones de diseño y los resultados obtenidos.
+
+\vspace{0.5cm}
+\noindent\textbf{Sebastián Gutiérrez} \hfill \textbf{Mateo Bernal} \hfill \textbf{Thomas Ramírez}
+
+% =============================================================================
+\section*{Referencias}
+\addcontentsline{toc}{section}{Referencias}
+% =============================================================================
+
+\begin{thebibliography}{9}
+
+\bibitem{levitin}
+  Levitin, A. (2012). \textit{Introduction to the Design and Analysis of Algorithms} (3rd ed.). Pearson.
+
+\bibitem{cormen}
+  Cormen, T., Leiserson, C., Rivest, R., \& Stein, C. (2022). \textit{Introduction to Algorithms} (4th ed.). MIT Press.
+
+\bibitem{skiena}
+  Skiena, S. (2020). \textit{The Algorithm Design Manual} (3rd ed.). Springer.
+
+\bibitem{thompson}
+  Thompson, S. K. (2012). \textit{Sampling} (3rd ed.). Wiley.
+
+\bibitem{python}
+  Python Software Foundation. (2024). \textit{Python 3 Documentation}. Recuperado de \url{https://docs.python.org/3/}
+
+\end{thebibliography}
+
+\end{document}

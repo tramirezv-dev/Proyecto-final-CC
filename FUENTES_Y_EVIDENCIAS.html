@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fuentes y Evidencias — Muestra Inteligente</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+    }
+
+    header {
+      background: linear-gradient(135deg, #006847 0%, #004d34 100%);
+      color: white;
+      padding: 2rem 2.5rem;
+    }
+    header h1 { font-size: 1.8rem; font-weight: 800; }
+    header p  { margin-top: 0.4rem; opacity: 0.85; font-size: 0.9rem; }
+    .badge {
+      display: inline-block;
+      background: #FDD000; color: #1a1a1a;
+      font-size: 0.72rem; font-weight: 700;
+      padding: 0.2rem 0.7rem; border-radius: 999px; margin-top: 0.6rem;
+    }
+
+    main {
+      max-width: 1050px;
+      margin: 2.5rem auto;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    /* Sección */
+    .section {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+    .section-header {
+      background: #006847;
+      color: white;
+      padding: 1rem 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-header .num {
+      background: #FDD000; color: #1a1a1a;
+      font-weight: 800; font-size: 0.85rem;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-header h2 { font-size: 1.05rem; font-weight: 700; }
+    .section-header p  { font-size: 0.78rem; opacity: 0.85; margin-top: 0.1rem; }
+
+    .section-body { padding: 1.6rem; }
+
+    /* Tarjeta de fuente */
+    .source-card {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .source-card:last-child { margin-bottom: 0; }
+
+    .source-top {
+      background: #f7fafc;
+      padding: 0.9rem 1.2rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .source-top .info h3 { font-size: 0.92rem; font-weight: 700; color: #2d3748; }
+    .source-top .info .url-link {
+      display: inline-block;
+      margin-top: 0.3rem;
+      font-size: 0.75rem;
+      color: #3182ce;
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .source-top .info .url-link:hover { text-decoration: underline; }
+    .tag-lang {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .tag-github   { background: #1a202c; color: #e2e8f0; }
+    .tag-docs     { background: #ebf8ff; color: #2b6cb0; }
+    .tag-tutorial { background: #f0fff4; color: #276749; }
+    .tag-ref      { background: #fffaf0; color: #7b341e; }
+
+    .source-detail { padding: 1.1rem 1.2rem; }
+    .source-detail .label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #718096;
+      margin-bottom: 0.4rem;
+    }
+    .source-detail p {
+      font-size: 0.82rem;
+      color: #4a5568;
+      line-height: 1.6;
+      margin-bottom: 0.85rem;
+    }
+    .source-detail p:last-child { margin-bottom: 0; }
+
+    /* Bloque de código */
+    .code-block {
+      background: #1a202c;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 0.6rem 0 0.85rem 0;
+    }
+    .code-block .kw  { color: #63b3ed; }
+    .code-block .fn  { color: #f6e05e; }
+    .code-block .cm  { color: #718096; font-style: italic; }
+    .code-block .st  { color: #68d391; }
+    .code-block .num { color: #fc8181; }
+
+    /* Screenshot simulado */
+    .screenshot {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 0.6rem 0 0.85rem 0;
+    }
+    .screenshot .bar {
+      background: #2d3748;
+      padding: 0.45rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .screenshot .bar .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .screenshot .bar .dot-r { background: #fc8181; }
+    .screenshot .bar .dot-y { background: #f6e05e; }
+    .screenshot .bar .dot-g { background: #68d391; }
+    .screenshot .bar .url-bar {
+      flex: 1;
+      background: #4a5568;
+      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.68rem;
+      color: #cbd5e0;
+      font-family: monospace;
+    }
+    .screenshot .content {
+      background: white;
+      padding: 1rem 1.2rem;
+    }
+
+    /* Fila de conexión — cómo usamos esto en el código */
+    .how-used {
+      background: #e6ffed;
+      border-left: 4px solid #006847;
+      border-radius: 0 6px 6px 0;
+      padding: 0.7rem 1rem;
+      font-size: 0.8rem;
+      color: #2f6c4f;
+      line-height: 1.5;
+    }
+    .how-used strong { display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.25rem; color: #006847; }
+
+    /* Tabla de resumen */
+    table.summary {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    table.summary thead { background: #006847; color: white; }
+    table.summary th { padding: 0.6rem 0.8rem; text-align: left; }
+    table.summary td { padding: 0.55rem 0.8rem; border-bottom: 1px solid #e2e8f0; }
+    table.summary tbody tr:last-child td { border-bottom: none; }
+    table.summary tbody tr:hover { background: #f7fafc; }
+    table.summary a { color: #3182ce; text-decoration: none; font-size: 0.75rem; }
+    table.summary a:hover { text-decoration: underline; }
+
+    /* Imágenes de resultados */
+    .result-img {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      margin-top: 0.6rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.78rem;
+      color: #a0aec0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Fuentes y Evidencias — Proyecto 4: Muestra Inteligente</h1>
+  <p>Universidad Nacional de Colombia · Sede Manizales · Introducción a las Ciencias de la Computación</p>
+  <span class="badge">De dónde sacamos cada parte del código y por qué</span>
+</header>
+
+<main>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 1: BACKTRACKING — PATRÓN BASE -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">1</div>
+      <div>
+        <h2>Patrón Backtracking — Elegir · Recursar · Retroceder</h2>
+        <p>Fuente del patrón general que usamos en <code>backtracking()</code></p>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <!-- FUENTE 1A -->
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>TheAlgorithms / Python — <code>backtracking/all_combinations.py</code></h3>
+            <a class="url-link" href="https://github.com/TheAlgorithms/Python/blob/master/backtracking/all_combinations.py" target="_blank">
+              https://github.com/TheAlgorithms/Python/blob/master/backtracking/all_combinations.py
+            </a>
+          </div>
+          <span class="tag-lang tag-github">GitHub</span>
+        </div>
+        <div class="source-detail">
+          <img src="capturas/02_thealgorithms_all_combinations.png" alt="Captura: TheAlgorithms all_combinations.py en GitHub" class="result-img"/>
+          <div class="label">Qué aprendimos de aquí</div>
+          <p>El repositorio TheAlgorithms tiene 21 algoritmos de backtracking en Python. El de <code>all_combinations.py</code> usa exactamente el mismo ciclo de 3 pasos que nuestro código: <strong>append (elegir) → recursión → pop (retroceder)</strong>. También usa índice creciente (<code>start = num + 1</code>) para evitar duplicados, igual que nuestro parámetro <code>inicio</code>.</p>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            En <code>backtracking()</code> (celda 6 del Colab y <code>src/funciones.py</code>): <code>muestra.append(candidato)</code> → llamada recursiva → <code>muestra.pop()</code>. El índice creciente es nuestro parámetro <code>inicio</code> que avanza con cada elección.
+          </div>
+        </div>
+      </div>
+
+      <!-- FUENTE 1B -->
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>TheAlgorithms / Python — <code>backtracking/sum_of_subsets.py</code></h3>
+            <a class="url-link" href="https://github.com/TheAlgorithms/Python/blob/master/backtracking/sum_of_subsets.py" target="_blank">
+              https://github.com/TheAlgorithms/Python/blob/master/backtracking/sum_of_subsets.py
+            </a>
+          </div>
+          <span class="tag-lang tag-github">GitHub</span>
+        </div>
+        <div class="source-detail">
+          <img src="capturas/03_thealgorithms_sum_of_subsets.png" alt="Captura: TheAlgorithms sum_of_subsets.py" class="result-img" style="margin-bottom:0.85rem"/>
+          <div class="label">Qué tiene este archivo</div>
+          <p>Resuelve el problema de <em>Suma de Subconjuntos</em>: dado un conjunto de números y un valor M, encontrar todos los subconjuntos cuya suma sea M. Es el problema más parecido al nuestro (selección de subconjunto con restricciones). Implementa la misma poda anticipada: si la suma actual ya supera el objetivo, o si la suma restante disponible no alcanza para llegar al objetivo, se descarta esa rama.</p>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            Inspiró la función <code>puede_podar()</code>: así como ese código pregunta "¿la suma restante puede alcanzar el objetivo?", nosotros preguntamos "¿los candidatos restantes pueden cumplir los mínimos de programa, semestre y ciudad?"
+          </div>
+        </div>
+      </div>
+
+      <!-- FUENTE 1C -->
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>Medium — The Choose-Explore-Unchoose pattern (Alberto Arrigoni)</h3>
+            <a class="url-link" href="https://medium.com/@albertoarrigoni/the-choose-explore-unchoose-pattern-for-backtracking-c0a519a3c2e8" target="_blank">
+              https://medium.com/@albertoarrigoni/the-choose-explore-unchoose-pattern-for-backtracking-c0a519a3c2e8
+            </a>
+          </div>
+          <span class="tag-lang tag-tutorial">Tutorial</span>
+        </div>
+        <div class="source-detail">
+          <img src="capturas/10_medium_choose_explore_unchoose.png" alt="Captura: Medium Choose-Explore-Unchoose" class="result-img" style="margin-bottom:0.85rem"/>
+          <div class="label">Qué explica este artículo</div>
+          <p>Explica el patrón "Choose → Explore → Unchoose" como la forma estructurada de pensar backtracking: <strong>Choose</strong> = tomar una decisión parcial, <strong>Explore</strong> = continuar recursivamente si la decisión es válida, <strong>Unchoose</strong> = deshacer la decisión y probar la siguiente opción. Es el marco mental que usamos para diseñar las 5 funciones del algoritmo.</p>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            El diseño de las 5 funciones (<code>es_solucion_completa</code>, <code>obtener_candidatos</code>, <code>es_valido</code>, <code>puede_podar</code>, <code>backtracking</code>) sigue exactamente este patrón. En la bitácora lo llamamos "elegir-recursar-retroceder".
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 2: PODA ANTICIPADA -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">2</div>
+      <div>
+        <h2>Poda Anticipada — <code>puede_podar()</code></h2>
+        <p>Fuente de las técnicas de poda que permiten descartar ramas del árbol de búsqueda</p>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>GeeksforGeeks — Subset Sum Backtracking</h3>
+            <a class="url-link" href="https://www.geeksforgeeks.org/subset-sum-backtracking-4/" target="_blank">
+              https://www.geeksforgeeks.org/subset-sum-backtracking-4/
+            </a>
+          </div>
+          <span class="tag-lang tag-tutorial">Tutorial</span>
+        </div>
+        <div class="source-detail">
+          <img src="capturas/04_geeksforgeeks_subset_sum.png" alt="Captura: GeeksforGeeks Subset Sum Backtracking" class="result-img"/>
+          <div class="label">Qué aprendimos de aquí</div>
+          <p>El artículo explica las dos condiciones de poda clásicas para problemas de subconjuntos con restricciones: (1) verificar máximos inmediatamente al agregar un elemento, y (2) verificar mínimos mirando al futuro (¿los candidatos restantes alcanzan para cumplir la cuota?). Esto es exactamente lo que distingue nuestra función <code>es_valido()</code> (verifica máximos) de <code>puede_podar()</code> (verifica mínimos hacia el futuro).</p>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            La Condición 1 de <code>puede_podar()</code> viene directamente de aquí: si los candidatos válidos restantes son menos que los estudiantes que faltan, es imposible completar la muestra. La Condición 0 (poda global de ciudades) es una extensión de esta idea aplicada a la restricción de ciudad.
+          </div>
+        </div>
+      </div>
+
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>GitHub — Python DSA Patterns: Backtracking Basics</h3>
+            <a class="url-link" href="https://github.com/abhijithwarrier/Python-DSA-Patterns/blob/main/notes/pydsap_12_backtracking_basics.md" target="_blank">
+              https://github.com/abhijithwarrier/Python-DSA-Patterns/blob/main/notes/pydsap_12_backtracking_basics.md
+            </a>
+          </div>
+          <span class="tag-lang tag-github">GitHub</span>
+        </div>
+        <div class="source-detail">
+          <img src="capturas/05_github_dsa_backtracking_basics.png" alt="Captura: Python DSA Patterns backtracking basics" class="result-img" style="margin-bottom:0.85rem"/>
+          <div class="label">Qué explica</div>
+          <p>Explica el concepto de backtracking como "explorar todas las configuraciones posibles, construyendo la solución paso a paso, y cuando una ruta es inválida, deshacer el último paso e intentar otro". Incluye el diagrama del árbol de búsqueda y la distinción entre restricciones de validez inmediata y restricciones que requieren ver al futuro.</p>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            Usamos la distinción entre restricciones inmediatas (→ <code>es_valido()</code>) y restricciones que requieren ver al futuro (→ <code>puede_podar()</code>). Esta fue la decisión de diseño más importante y más difícil de entender al principio (ver Bitácora, Semana 1).
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 3: COLLECTIONS.COUNTER -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">3</div>
+      <div>
+        <h2>collections.Counter — Conteo de estudiantes por categoría</h2>
+        <p>Fuente de la estructura usada en <code>obtener_conteos()</code></p>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>Python Docs — collections.Counter</h3>
+            <a class="url-link" href="https://docs.python.org/3/library/collections.html#collections.Counter" target="_blank">
+              https://docs.python.org/3/library/collections.html#collections.Counter
+            </a>
+          </div>
+          <span class="tag-lang tag-docs">Docs oficiales</span>
+        </div>
+        <div class="source-detail">
+          <img src="capturas/06_python_docs_counter.png" alt="Captura: Python docs collections.Counter" class="result-img"/>
+          <div class="label">Qué aprendimos de aquí</div>
+          <p>Counter es una subclase de dict que cuenta objetos. Lo clave para nuestro código: al acceder a una clave que no existe, retorna 0 en lugar de lanzar KeyError. Esto permite escribir <code>por_programa.get("Fisica", 0)</code> o simplemente <code>por_programa["Fisica"]</code> y siempre obtener un número seguro.</p>
+          <div class="code-block">
+<span class="cm"># Así lo usamos en obtener_conteos():</span>
+<span class="kw">def</span> <span class="fn">obtener_conteos</span>(muestra):
+    por_programa = <span class="fn">Counter</span>(e[<span class="st">"programa"</span>] <span class="kw">for</span> e <span class="kw">in</span> muestra)
+    por_ciudad   = <span class="fn">Counter</span>(e[<span class="st">"ciudad"</span>]   <span class="kw">for</span> e <span class="kw">in</span> muestra)
+    por_jornada  = <span class="fn">Counter</span>(e[<span class="st">"jornada"</span>]  <span class="kw">for</span> e <span class="kw">in</span> muestra)
+    semestre_1   = <span class="fn">sum</span>(<span class="num">1</span> <span class="kw">for</span> e <span class="kw">in</span> muestra <span class="kw">if</span> e[<span class="st">"semestre"</span>] == <span class="num">1</span>)
+    <span class="kw">return</span> por_programa, por_ciudad, por_jornada, semestre_1
+          </div>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            Counter reemplaza un diccionario manual de conteo. En lugar de escribir bucles para contar cuántos estudiantes hay de cada programa/ciudad/jornada, pasamos un generador a Counter y obtenemos el resultado en una línea.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 4: PANDAS DATAFRAME -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">4</div>
+      <div>
+        <h2>pandas.DataFrame — Visualización del pool y la muestra</h2>
+        <p>Fuente de la librería usada para mostrar el dataset en tabla</p>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>pandas Documentation — DataFrame &amp; to_string()</h3>
+            <a class="url-link" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html" target="_blank">
+              https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html
+            </a>
+          </div>
+          <span class="tag-lang tag-docs">Docs oficiales</span>
+        </div>
+        <div class="source-detail">
+          <img src="capturas/07_pandas_dataframe_to_string.png" alt="Captura: pandas docs DataFrame.to_string" class="result-img"/>
+          <div class="label">Qué aprendimos de aquí</div>
+          <p>pandas.DataFrame acepta una lista de diccionarios directamente: cada diccionario es una fila, las claves son las columnas. El método <code>to_string(index=False)</code> imprime la tabla en consola sin el índice numérico de la izquierda, lo que da una salida más limpia para presentar.</p>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            En la celda 2 del Colab: <code>df_pool = pd.DataFrame(POOL)</code> convierte nuestra lista de 20 diccionarios en tabla. En <code>ejecutar_busqueda()</code>: <code>pd.DataFrame(soluciones[0]).to_string(index=False)</code> muestra la muestra encontrada de forma ordenada.
+          </div>
+        </div>
+      </div>
+
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>GeeksforGeeks — Pandas DataFrame to_string()</h3>
+            <a class="url-link" href="https://www.geeksforgeeks.org/pandas/python-pandas-dataframe-to_string/" target="_blank">
+              https://www.geeksforgeeks.org/pandas/python-pandas-dataframe-to_string/
+            </a>
+          </div>
+          <span class="tag-lang tag-tutorial">Tutorial</span>
+        </div>
+        <div class="source-detail">
+          <div class="label">Qué explica</div>
+          <p>Explica todos los parámetros de <code>to_string()</code> con ejemplos. El parámetro <code>index=False</code> que usamos en el código viene de aquí: elimina la columna de índice (0, 1, 2...) que pandas agrega por defecto, dejando solo las columnas de datos.</p>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            Todos los <code>print(df.to_string(index=False))</code> del notebook.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 5: MATPLOTLIB — GRÁFICAS -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">5</div>
+      <div>
+        <h2>matplotlib — Gráficas de barras comparativas</h2>
+        <p>Fuente de las celdas 13 y 14 del Colab que generan las dos imágenes de resultados</p>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>Matplotlib Docs — Grouped bar chart with labels</h3>
+            <a class="url-link" href="https://matplotlib.org/stable/gallery/lines_bars_and_markers/barchart.html" target="_blank">
+              https://matplotlib.org/stable/gallery/lines_bars_and_markers/barchart.html
+            </a>
+          </div>
+          <span class="tag-lang tag-docs">Docs oficiales</span>
+        </div>
+        <div class="source-detail">
+          <img src="capturas/08_matplotlib_barchart.png" alt="Captura: matplotlib docs grouped bar chart" class="result-img"/>
+          <div class="label">Qué aprendimos de aquí</div>
+          <p>El truco de las barras agrupadas: desplazar la primera barra a <code>x - width/2</code> y la segunda a <code>x + width/2</code>. Así dos barras quedan lado a lado para el mismo grupo de categorías. Usamos esto para mostrar Pool vs. Muestra en la misma gráfica.</p>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            En <code>graficar_comparacion()</code> (Celda 13): <code>ax.bar([xi - w/2 for xi in x], pool_vals, w)</code> para las barras del pool (azul) y <code>ax.bar([xi + w/2 for xi in x], muestra_vals, w)</code> para la muestra (naranja).
+          </div>
+        </div>
+      </div>
+
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>GeeksforGeeks — Plotting multiple bar charts using Matplotlib</h3>
+            <a class="url-link" href="https://www.geeksforgeeks.org/python/plotting-multiple-bar-charts-using-matplotlib-in-python/" target="_blank">
+              https://www.geeksforgeeks.org/python/plotting-multiple-bar-charts-using-matplotlib-in-python/
+            </a>
+          </div>
+          <span class="tag-lang tag-tutorial">Tutorial</span>
+        </div>
+        <div class="source-detail">
+          <img src="capturas/09_geeksforgeeks_multiple_bars.png" alt="Captura: GeeksforGeeks multiple bar charts" class="result-img" style="margin-bottom:0.85rem"/>
+          <div class="label">Qué explica</div>
+          <p>Cómo usar <code>plt.subplots(filas, columnas)</code> para crear una cuadrícula de gráficas. El patrón <code>fig, axes = plt.subplots(2, 3)</code> crea la cuadrícula de 2 filas × 3 columnas que usamos para las gráficas de distribución (programa / ciudad / jornada para cada conjunto de cuotas).</p>
+          <div class="how-used">
+            <strong>Cómo lo aplicamos en nuestro código</strong>
+            <code>fig, axes = plt.subplots(2, 3, figsize=(14, 8))</code> en la Celda 13. Los <code>axes[0]</code> son la fila del Conjunto 1 y <code>axes[1]</code> la fila del Conjunto 2.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 6: EVIDENCIAS — RESULTADOS GENERADOS POR EL CÓDIGO -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">6</div>
+      <div>
+        <h2>Evidencias — Resultados generados por el código</h2>
+        <p>Imágenes reales producidas al ejecutar el notebook en Python</p>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>resultados/comparacion_distribuciones.png — generada por Celda 13</h3>
+          </div>
+          <span class="tag-lang tag-ref">Evidencia</span>
+        </div>
+        <div class="source-detail">
+          <p>Muestra la distribución del pool original (azul, 20 estudiantes) vs. la muestra seleccionada por el algoritmo (naranja, 6 estudiantes) para los Conjuntos 1 y 2. Confirma que la muestra respeta las restricciones de cuota mínima por programa, ciudad y jornada.</p>
+          <img src="resultados/comparacion_distribuciones.png" alt="Comparacion distribuciones" class="result-img"/>
+        </div>
+      </div>
+
+      <div class="source-card">
+        <div class="source-top">
+          <div class="info">
+            <h3>resultados/eficiencia_backtracking.png — generada por Celda 14</h3>
+          </div>
+          <span class="tag-lang tag-ref">Evidencia</span>
+        </div>
+        <div class="source-detail">
+          <p>Compara las llamadas recursivas y ramas podadas de los 3 conjuntos. El resultado clave: C3 (imposible) se detecta en <strong>1 sola llamada</strong>, mientras que C1 y C2 (con solución) se resuelven en <strong>7 llamadas</strong>. Sin poda habría que evaluar 38,760 combinaciones.</p>
+          <img src="resultados/eficiencia_backtracking.png" alt="Eficiencia backtracking" class="result-img"/>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN 7: TABLA RESUMEN DE TODOS LOS LINKS -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="num">7</div>
+      <div>
+        <h2>Todos los links — Tabla resumen</h2>
+        <p>Referencia rápida de todas las fuentes usadas en el proyecto</p>
+      </div>
+    </div>
+    <div class="section-body">
+      <table class="summary">
+        <thead>
+          <tr>
+            <th>Parte del código</th>
+            <th>Fuente</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Patrón backtracking (elegir·recursar·retroceder)</td>
+            <td>TheAlgorithms/Python — all_combinations.py</td>
+            <td><a href="https://github.com/TheAlgorithms/Python/blob/master/backtracking/all_combinations.py" target="_blank">GitHub</a></td>
+          </tr>
+          <tr>
+            <td>Poda por restricciones de subconjunto</td>
+            <td>TheAlgorithms/Python — sum_of_subsets.py</td>
+            <td><a href="https://github.com/TheAlgorithms/Python/blob/master/backtracking/sum_of_subsets.py" target="_blank">GitHub</a></td>
+          </tr>
+          <tr>
+            <td>Directorio completo de backtracking en Python</td>
+            <td>TheAlgorithms/Python — backtracking/</td>
+            <td><a href="https://github.com/TheAlgorithms/Python/tree/master/backtracking" target="_blank">GitHub</a></td>
+          </tr>
+          <tr>
+            <td>Patrón Choose-Explore-Unchoose</td>
+            <td>Medium — Alberto Arrigoni</td>
+            <td><a href="https://medium.com/@albertoarrigoni/the-choose-explore-unchoose-pattern-for-backtracking-c0a519a3c2e8" target="_blank">Medium</a></td>
+          </tr>
+          <tr>
+            <td>Condiciones de poda anticipada</td>
+            <td>GeeksforGeeks — Subset Sum Backtracking-4</td>
+            <td><a href="https://www.geeksforgeeks.org/subset-sum-backtracking-4/" target="_blank">GeeksforGeeks</a></td>
+          </tr>
+          <tr>
+            <td>Distinción validez inmediata vs. poda futura</td>
+            <td>GitHub — Python DSA Patterns (abhijithwarrier)</td>
+            <td><a href="https://github.com/abhijithwarrier/Python-DSA-Patterns/blob/main/notes/pydsap_12_backtracking_basics.md" target="_blank">GitHub</a></td>
+          </tr>
+          <tr>
+            <td>Backtracking en Python explicado</td>
+            <td>Medium — Backtracking in Python (CodeToDeploy)</td>
+            <td><a href="https://medium.com/codetodeploy/backtracking-in-python-a-structured-way-to-solve-search-and-exploration-problems-91a551ca91e4" target="_blank">Medium</a></td>
+          </tr>
+          <tr>
+            <td>collections.Counter</td>
+            <td>Python Docs oficiales</td>
+            <td><a href="https://docs.python.org/3/library/collections.html#collections.Counter" target="_blank">docs.python.org</a></td>
+          </tr>
+          <tr>
+            <td>pandas DataFrame desde lista de dicts</td>
+            <td>pandas Docs — DataFrame.to_string()</td>
+            <td><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_string.html" target="_blank">pandas.pydata.org</a></td>
+          </tr>
+          <tr>
+            <td>pandas to_string() con parámetros</td>
+            <td>GeeksforGeeks — Pandas DataFrame to_string</td>
+            <td><a href="https://www.geeksforgeeks.org/pandas/python-pandas-dataframe-to_string/" target="_blank">GeeksforGeeks</a></td>
+          </tr>
+          <tr>
+            <td>Gráficas de barras agrupadas (Pool vs. Muestra)</td>
+            <td>Matplotlib — Grouped bar chart with labels</td>
+            <td><a href="https://matplotlib.org/stable/gallery/lines_bars_and_markers/barchart.html" target="_blank">matplotlib.org</a></td>
+          </tr>
+          <tr>
+            <td>plt.subplots() con cuadrícula de gráficas</td>
+            <td>GeeksforGeeks — Multiple bar charts Matplotlib</td>
+            <td><a href="https://www.geeksforgeeks.org/python/plotting-multiple-bar-charts-using-matplotlib-in-python/" target="_blank">GeeksforGeeks</a></td>
+          </tr>
+          <tr>
+            <td>matplotlib.pyplot.bar() — referencia oficial</td>
+            <td>Matplotlib Docs — pyplot.bar</td>
+            <td><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.bar.html" target="_blank">matplotlib.org</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Proyecto 4 — Muestra Inteligente · UNAL Manizales · Introducción a las Ciencias de la Computación · 2026
+</footer>
+
+</body>
+</html>
