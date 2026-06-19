@@ -9,6 +9,14 @@ Exposición: 17 de junio de 2026
 
 ---
 
+## Demo interactiva
+
+**[https://funny-beignet-c0705c.netlify.app/](https://funny-beignet-c0705c.netlify.app/)**
+
+Permite configurar las cuotas en tiempo real y ejecutar el algoritmo de backtracking directamente en el navegador, sin instalar nada.
+
+---
+
 ## Integrantes
 
 | Nombre | Rol |
@@ -32,14 +40,17 @@ El problema se modela con **backtracking**: la computadora construye la muestra 
 ```
 muestra-inteligente/
 ├── README.md
+├── demo/
+│   └── index.html             ← demo interactiva (Netlify)
 ├── notebook/
-│   └── proyecto.py        ← código completo para Google Colab
+│   ├── proyecto.py            ← código fuente original
+│   └── proyecto_colab.ipynb   ← notebook organizado para Google Colab
 ├── src/
-│   └── funciones.py       ← funciones de backtracking reutilizables
+│   └── funciones.py           ← funciones de backtracking reutilizables
 ├── presentacion/
-│   └── presentacion.tex   ← presentación Beamer para Overleaf
-├── informe/               ← informe escrito (PDF)
-└── resultados/            ← gráficas generadas
+│   └── presentacion.tex       ← presentación Beamer para Overleaf
+├── informe/                   ← informe escrito (PDF)
+└── resultados/                ← gráficas generadas
     ├── comparacion_distribuciones.png
     └── eficiencia_backtracking.png
 ```
@@ -49,9 +60,10 @@ muestra-inteligente/
 ## Cómo ejecutar en Google Colab
 
 1. Abrir [Google Colab](https://colab.research.google.com)
-2. Crear un nuevo notebook
-3. Copiar el contenido de `notebook/proyecto.py` en celdas separadas (cada bloque `# ── CELDA N` es una celda)
-4. Ejecutar en orden (Runtime → Run all)
+2. Ir a **Archivo → Abrir notebook → GitHub**
+3. Pegar la URL del repositorio: `https://github.com/tramirezv-dev/Proyecto-final-CC`
+4. Seleccionar `notebook/proyecto_colab.ipynb`
+5. Ejecutar todo: **Runtime → Run all**
 
 **No se requiere instalar nada**: Colab ya incluye `pandas` y `matplotlib`.
 
